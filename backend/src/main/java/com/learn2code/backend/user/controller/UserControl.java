@@ -35,20 +35,20 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        User user = userService.findByID(id).orElseThrow() -> new RuntimeException("User not found for this id::" + id);
-
-        user.setUsername(userDetails.getUsername());
-        user.setEmail(userDetails.getEmail());
-        user.setPassword(userDetails.getPassword());
-
-        final User updateUser = userService.save(user);
-        return ResponseEntity.ok(updateUser);
+        User updatedUser = userService.updateUser(id, userDetails);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserId(@PathVariable Long id) {
         User user = userService.findBy(id).orElseThrow(() -> new RuntimeException("User not found for this id::" + id));
         return ResponseEntity.ok().body(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 
 }
