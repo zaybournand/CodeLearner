@@ -1,16 +1,14 @@
 package com.learn2code.backend.user.service;
 
-import com.learn2code.backend.common.exception;
-import com.learn2code.backend.user.model.User;
-import com.learn2code.backend.repository.UserRepository;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.learn2code.backend.common.exception.ResourceNotFoundException;
+import com.learn2code.backend.user.model.User;
+import com.learn2code.backend.user.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -30,6 +28,10 @@ public class UserService {
             throw new RuntimeException("Error registering new user: " + e.getMessage());
         }
 
+    }
+
+    public User createUser(User user) {
+        return userRepository.save(user);
     }
 
     public boolean validateUserCredentials(String username, String password) {
