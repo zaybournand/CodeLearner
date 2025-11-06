@@ -7,6 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.learn2code.backend.common.exception.ResourceNotFoundException;
+import com.learn2code.backend.user.dto.UserRequestDTO;
+import com.learn2code.backend.user.dto.UserResponseDTO;
 import com.learn2code.backend.user.model.User;
 import com.learn2code.backend.user.repository.UserRepository;
 
@@ -30,8 +32,15 @@ public class UserService {
 
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        User user = new User();
+        user.setUsername(userRequestDTO.getUsername());
+        user.setEmail(userRequestDTO.getEmail());
+        user.setPassword(userRequestDTO.getPassword());
+
+        User savedUser = userRepository.save(user);
+        return new UserResponseDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+
     }
 
     public boolean validateUserCredentials(String username, String password) {

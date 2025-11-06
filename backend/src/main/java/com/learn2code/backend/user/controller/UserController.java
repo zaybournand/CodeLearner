@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.learn2code.backend.user.dto.UserRequestDTO;
+import com.learn2code.backend.user.dto.UserResponseDTO;
 import com.learn2code.backend.user.model.User;
 import com.learn2code.backend.user.service.UserService;
 
@@ -29,8 +31,9 @@ public class UserController {
 
     //create a new user
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO response = userService.createUser(userRequestDTO);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
