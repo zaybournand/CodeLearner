@@ -1,1 +1,36 @@
 package com.learn2code.backend.auth.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.learn2code.backend.auth.dto.LoginRequestDTO;
+import com.learn2code.backend.auth.dto.LoginResponseDTO;
+import com.learn2code.backend.auth.jwt.JWTService;
+import com.learn2code.backend.user.model.User;
+import com.learn2code.backend.user.model.user.UserService;
+
+@Service
+public class AuthService {
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    private UserService userService;
+
+    public LoginResponseDTO loginUser(LoginRequestDTO loginRequestDTO) {
+        // Delegate login logic to UserService
+        User user = userService.validateLogin(
+                loginRequestDTO.getEmail(),
+                loginRequestDTO.getPassword()
+        );
+
+        // Generate JWT after validation
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new LoginResponseDTO(user.getId(), user.getEmail(), token);
+    }
+
+    public User registerNewUser(User user) {
+        return userService.createUser(user);
+    }
+}
