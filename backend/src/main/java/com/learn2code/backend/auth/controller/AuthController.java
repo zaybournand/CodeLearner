@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.learn2code.backend.auth.dto.LoginResponseDTO;
 import com.learn2code.backend.auth.dto.LoginRequestDTO;
-import com.learn2code.backend.user.model.User;
+import com.learn2code.backend.user.dto.UserRequestDTO;
+import com.learn2code.backend.user.dto.UserResponseDTO;
 import com.learn2code.backend.auth.service.AuthService;
 
 @RestController
@@ -20,9 +21,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User registerUser = authService.registerNewUser(user);
-        return ResponseEntity.ok(registerUser);
+    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRequestDTO request) {
+        UserResponseDTO response = authService.registerNewUser(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
