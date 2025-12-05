@@ -37,13 +37,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                // 1. Allow Chat/WebSocket connections
                 .requestMatchers("/ws/**").permitAll()
-                // 2. Allow Auth endpoints (Login/Signup)
                 .requestMatchers("/api/v1/auth/**").permitAll()
-                // 3. Lock down everything else
+                // NEW: Allow access to skills endpoints so you can test them
+                .requestMatchers("/api/v1/skills/**").permitAll()
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -71,11 +70,10 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // CORS Configuration for WebSocket and Frontend access
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // Allow all origins (for dev)
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
