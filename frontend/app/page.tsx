@@ -79,7 +79,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-
+        
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLanguages.map((lang) => (
@@ -109,6 +109,12 @@ export default function HomePage() {
                 >
                   <Star size={14} /> Docs
                 </Link>
+                <Link 
+                href={`/${lang.id}/roadmap`} 
+                className="flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 rounded-2xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all duration-300"
+              >
+                <Trophy size={16} /> Learning Path
+              </Link>
                 <Link 
                   href={`/${lang.id}/chat`} 
                   className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all"
