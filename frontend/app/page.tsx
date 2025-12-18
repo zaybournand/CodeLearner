@@ -1,124 +1,125 @@
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 import { 
-  Code2, 
-  Terminal, 
-  Layout, 
-  ArrowRight, 
-  Star, 
-  MessageSquare, 
-  Trophy,
-  Sparkles
+  Code2, Terminal, Layout, ArrowRight, Star, 
+  MessageSquare, Trophy, Sparkles, Database, Smartphone,
+  LogOut, UserCircle, Loader2
 } from 'lucide-react';
+import { Button } from "@/components/Button";
 
-// --- LANGUAGE CONFIGURATION ---
+// --- CONFIGURATION ---
 const LANGUAGES = [
-  { 
-    id: 'react', 
-    name: 'React', 
-    icon: <Code2 />, 
-    color: 'text-sky-500', 
-    bg: 'bg-sky-50',
-    desc: 'The library for web and native user interfaces.' 
-  },
-  { 
-    id: 'java', 
-    name: 'Java', 
-    icon: <Terminal />, 
-    color: 'text-red-500', 
-    bg: 'bg-red-50',
-    desc: 'The backbone of enterprise-grade backend systems.' 
-  },
-  { 
-    id: 'python', 
-    name: 'Python', 
-    icon: <Layout />, 
-    color: 'text-yellow-500', 
-    bg: 'bg-yellow-50',
-    desc: 'Powerful, simple, and the gold standard for AI/ML.' 
-  },
+  { id: 'react', name: 'React', category: 'Frontend', icon: <Code2 />, color: 'text-sky-500', bg: 'bg-sky-50', desc: 'The industry standard for building modern component-based UIs.' },
+  { id: 'javascript', name: 'JavaScript', category: 'Frontend', icon: <Code2 />, color: 'text-yellow-500', bg: 'bg-yellow-50', desc: 'The essential language of the web. Functional and versatile.' },
+  { id: 'typescript', name: 'TypeScript', category: 'Frontend', icon: <Code2 />, color: 'text-blue-600', bg: 'bg-blue-50', desc: 'JavaScript with syntax for types. Essential for large-scale apps.' },
+  { id: 'html-css', name: 'HTML/CSS', category: 'Frontend', icon: <Layout />, color: 'text-orange-600', bg: 'bg-orange-50', desc: 'The building blocks of every website on the planet.' },
+  { id: 'java', name: 'Java', category: 'Backend', icon: <Terminal />, color: 'text-red-500', bg: 'bg-red-50', desc: 'Scalable, object-oriented language for enterprise backends.' },
+  { id: 'spring-boot', name: 'Spring Boot', category: 'Backend', icon: <Terminal />, color: 'text-emerald-500', bg: 'bg-emerald-50', desc: 'The most popular Java framework for microservices.' },
+  { id: 'python', name: 'Python', category: 'Backend', icon: <Terminal />, color: 'text-blue-500', bg: 'bg-blue-50', desc: 'Simple syntax, massive power for AI, Data Science, and Scripts.' },
+  { id: 'go', name: 'Go', category: 'Backend', icon: <Terminal />, color: 'text-cyan-500', bg: 'bg-cyan-50', desc: 'Google’s language built for high-performance cloud services.' },
+  { id: 'rust', name: 'Rust', category: 'Backend', icon: <Terminal />, color: 'text-orange-700', bg: 'bg-orange-50', desc: 'Memory-safe and blazing fast. The future of systems programming.' },
+  { id: 'sql', name: 'SQL', category: 'Database', icon: <Database />, color: 'text-blue-600', bg: 'bg-blue-100', desc: 'The standard language for managing and querying databases.' },
+  { id: 'cpp', name: 'C++', category: 'Systems', icon: <Terminal />, color: 'text-blue-700', bg: 'bg-blue-50', desc: 'High-performance language for games and OS development.' },
+  { id: 'swift', name: 'Swift', category: 'Mobile', icon: <Smartphone />, color: 'text-orange-500', bg: 'bg-orange-50', desc: 'The modern, safe language for Apple iOS development.' },
+  { id: 'c-sharp', name: 'C#', category: 'Backend', icon: <Terminal />, color: 'text-purple-600', bg: 'bg-purple-50', desc: 'Versatile language for Web, Desktop, and Games.' },
+  { id: 'ruby', name: 'Ruby', category: 'Backend', icon: <Code2 />, color: 'text-red-700', bg: 'bg-red-50', desc: 'Dynamic, open source language focused on simplicity.' }
 ];
 
+const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'Mobile', 'Systems'];
+
 export default function HomePage() {
+  const [filter, setFilter] = useState('All');
+
+  const filteredLanguages = filter === 'All' 
+    ? LANGUAGES 
+    : LANGUAGES.filter(l => l.category === filter);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50/50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-slate-50 to-white pt-20 pb-16 px-4">
+      <section className="bg-white border-b border-slate-200 pt-20 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold mb-6">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold mb-6">
             <Trophy className="w-4 h-4" />
             <span>Join 10,000+ developers learning today</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
-            Level Up Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Coding Game</span>
+            Master Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Tech Stack</span>
           </h1>
-          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Choose a technology to access top-rated documentation, track your progress, and chat with a community of experts.
+          <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Top-rated documentation and live community help for every major language.
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Language Selection Grid */}
-      <div className="max-w-6xl mx-auto px-4 pb-24">
-        <div className="flex items-center gap-2 mb-8 text-slate-900">
-          <Sparkles className="text-blue-600" />
-          <h2 className="text-2xl font-bold">Choose your path</h2>
+      {/* Filter & Grid Section */}
+      <main className="max-w-6xl mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-blue-600" />
+            <h2 className="text-2xl font-bold text-slate-900">Choose your path</h2>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  filter === cat 
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {LANGUAGES.map((lang) => (
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLanguages.map((lang) => (
             <div 
               key={lang.id} 
-              className="group bg-white p-8 rounded-[2rem] border border-slate-200 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-100 transition-all duration-300 relative overflow-hidden"
+              className="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
-              {/* Icon & Title */}
-              <div className={`${lang.bg} ${lang.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transform group-hover:scale-110 group-hover:-rotate-3 transition-all`}>
-                {React.cloneElement(lang.icon as any, { size: 32 })}
+              <div>
+                <div className={`${lang.bg} ${lang.color} w-12 h-12 rounded-xl flex items-center justify-center mb-5 transform group-hover:rotate-6 transition-transform`}>
+                  {React.cloneElement(lang.icon as any, { size: 24 })}
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-xl font-bold text-slate-900">{lang.name}</h3>
+                  <span className="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                    {lang.category}
+                  </span>
+                </div>
+                <p className="text-slate-500 text-sm mb-6 line-clamp-2">
+                  {lang.desc}
+                </p>
               </div>
-              
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{lang.name}</h3>
-              <p className="text-slate-500 mb-8 leading-relaxed">
-                {lang.desc}
-              </p>
-              
-              {/* Navigation Buttons */}
-              <div className="flex flex-col gap-3 relative z-10">
+
+              <div className="grid grid-cols-2 gap-3">
                 <Link 
                   href={`/${lang.id}/docs`} 
-                  className="flex items-center justify-between p-4 bg-slate-50 text-slate-700 rounded-2xl font-bold hover:bg-blue-600 hover:text-white transition-all group/btn"
+                  className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-700 rounded-xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all"
                 >
-                  <span className="flex items-center gap-2">
-                    <Star size={18} className="group-hover/btn:fill-white" />
-                    Top Resources
-                  </span>
-                  <ArrowRight size={18} className="opacity-0 group-hover/btn:opacity-100 -translate-x-2 group-hover/btn:translate-x-0 transition-all" />
+                  <Star size={14} /> Docs
                 </Link>
-
                 <Link 
                   href={`/${lang.id}/chat`} 
-                  className="flex items-center justify-between p-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all"
+                  className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all"
                 >
-                  <span className="flex items-center gap-2">
-                    <MessageSquare size={18} />
-                    Live Chat
-                  </span>
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <MessageSquare size={14} /> Chat
                 </Link>
               </div>
-
-              {/* Decorative background element */}
-              <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-slate-50 rounded-full group-hover:bg-blue-50 transition-colors -z-0" />
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Footer Info */}
-      <footer className="border-t border-slate-100 py-12 text-center text-slate-400 text-sm">
-        <p>© 2025 Learn2Code Platform. All rights reserved.</p>
-      </footer>
+      </main>
     </div>
   );
 }
