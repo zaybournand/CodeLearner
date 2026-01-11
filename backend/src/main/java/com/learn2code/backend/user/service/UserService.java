@@ -3,7 +3,7 @@ package com.learn2code.backend.user.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder; // Use the interface
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.learn2code.backend.common.exception.ResourceNotFoundException;

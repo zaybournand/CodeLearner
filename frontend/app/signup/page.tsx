@@ -23,10 +23,9 @@ export default function SignUp() {
     }
 
     try {
-      // Updated to match your Spring Boot port if applicable, 
-      // or kept at 5000 if that is where your auth server lives.
+
       const res = await axios.post(
-        "http://localhost:5000/signup",
+        "http://localhost:8080/signup",
         { email, password },
         { withCredentials: true } 
       );
