@@ -1,17 +1,30 @@
 "use client";
 import React, { useState } from "react";
-import Link from "next/link";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/Input"; 
-import { Button } from "@/components/Button";
+
+// Standard HTML components
+const Input = ({ className = "", ...props }: any) => (
+  <input
+    className={`w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200 ${className}`}
+    {...props}
+  />
+);
+
+const Button = ({ children, className = "", ...props }: any) => (
+  <button
+    className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 ${className}`}
+    {...props}
+  >
+    {children}
+  </button>
+);
 
 export default function SignUp() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [feedback, setFeedback] = useState({ message: "", type: "" });
-  const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,36 +36,50 @@ export default function SignUp() {
     }
 
     try {
-
-      const res = await axios.post(
-        "http://localhost:8080/signup",
-        { email, password },
-        { withCredentials: true } 
+      // 1. REGISTER
+      await axios.post(
+        "http://localhost:8080/api/v1/auth/register",
+        { username, email, password }
       );
 
-      setFeedback({ message: "Account created! Redirecting...", type: "success" });
-      
-      setTimeout(() => {
-          // Redirecting to the home page so they can pick a language
-          router.push("/");
-      }, 1500);
+      // 2. AUTO-LOGIN
+      const loginRes = await axios.post(
+        "http://localhost:8080/api/v1/auth/login",
+        { email, password }
+      );
 
-    } catch (err: any) {
-      let errorMessage = "Signup failed. Try again later.";
-      
-      if (err.response?.data?.error) {
-          errorMessage = err.response.data.error;
-      } else if (err.message) {
-          errorMessage = err.message;
+      // 3. SAVE TOKEN & USERNAME
+      const token = loginRes.data.token || loginRes.data.jwt;
+      if (token) {
+        localStorage.setItem("token", token);
+        
+        const userToSave = {
+            username: username, // <--- SAVING USERNAME HERE
+            email: loginRes.data.email || email,
+            id: loginRes.data.id
+        };
+        localStorage.setItem("user", JSON.stringify(userToSave));
+
+        setFeedback({ message: "Account created! Logging you in...", type: "success" });
+        
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 1000);
       }
 
+    } catch (err: any) {
+      console.error(err);
+      let errorMessage = "Signup failed.";
+      if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+      }
       setFeedback({ message: errorMessage, type: "error" });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-sm shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 font-sans">
+      <div className="max-w-md w-full space-y-8 bg-slate-900/50 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-xl shadow-2xl">
         <div className="text-center">
           <h3 className="text-3xl font-extrabold text-white tracking-tight">
             Join Code Learner
@@ -65,24 +92,31 @@ export default function SignUp() {
         <form onSubmit={handleSignup} className="mt-8 space-y-4">
           <div className="flex flex-col gap-4">
               <Input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e: any) => setUsername(e.target.value)}
+                required
+              />
+              <Input
                 type="email"
                 placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: any) => setEmail(e.target.value)}
                 required
               />
               <Input
                 type="password"
                 placeholder="Create Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: any) => setPassword(e.target.value)}
                 required
               />
               <Input
                 type="password"
                 placeholder="Confirm Password"
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={(e: any) => setConfirm(e.target.value)}
                 required
               />
 
@@ -91,7 +125,7 @@ export default function SignUp() {
               </Button>
 
               {feedback.message && (
-                <div className={`mt-2 text-center text-sm p-4 rounded-xl border animate-in fade-in zoom-in duration-300 ${
+                <div className={`mt-2 text-center text-sm p-4 rounded-xl border duration-300 ${
                     feedback.type === 'error' 
                         ? 'bg-red-500/10 text-red-200 border-red-500/50' 
                         : 'bg-green-500/10 text-green-200 border-green-500/50'
@@ -104,9 +138,9 @@ export default function SignUp() {
 
         <p className="text-center text-slate-400 text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300 font-bold underline underline-offset-4">
+          <a href="/login" className="text-blue-400 hover:text-blue-300 font-bold underline underline-offset-4 transition-colors">
             Log in
-          </Link>
+          </a>
         </p>
       </div>
     </div>

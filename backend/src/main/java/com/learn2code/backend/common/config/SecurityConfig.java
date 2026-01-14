@@ -41,8 +41,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
-                // NEW: Allow access to skills endpoints so you can test them
                 .requestMatchers("/api/v1/skills/**").permitAll()
+                .requestMatchers("/api/v1/users/**").permitAll()
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

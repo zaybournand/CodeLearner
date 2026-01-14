@@ -21,7 +21,7 @@ public class AuthService {
     private UserService userService;
 
     public LoginResponseDTO loginUser(LoginRequestDTO loginRequestDTO) {
-        // Delegate login logic to UserService
+
         User user = userService.validateLogin(
                 loginRequestDTO.getEmail(),
                 loginRequestDTO.getPassword()
@@ -30,7 +30,7 @@ public class AuthService {
         // Generate JWT after validation
         String token = jwtService.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(user.getId(), user.getEmail(), token);
+        return new LoginResponseDTO(user.getId(), user.getEmail(), user.getUsername(), token);
     }
 
     public UserResponseDTO registerNewUser(UserRequestDTO request) {

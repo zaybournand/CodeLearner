@@ -1,14 +1,12 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
+import { useAuth } from './Auth'; 
 import { 
-  Code2, Terminal, Layout, ArrowRight, Star, 
-  MessageSquare, Trophy, Sparkles, Database, Smartphone,
-  LogOut, UserCircle, Loader2
+  Code2, Terminal, Layout, Star, MessageSquare, Trophy, 
+  Sparkles, Database, Smartphone, UserCircle, LogOut
 } from 'lucide-react';
-import { Button } from "@/components/Button";
 
 // --- CONFIGURATION ---
 const LANGUAGES = [
@@ -28,19 +26,75 @@ const LANGUAGES = [
   { id: 'ruby', name: 'Ruby', category: 'Backend', icon: <Code2 />, color: 'text-red-700', bg: 'bg-red-50', desc: 'Dynamic, open source language focused on simplicity.' }
 ];
 
+
 const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'Mobile', 'Systems'];
 
 export default function HomePage() {
   const [filter, setFilter] = useState('All');
+  
+  // USE THE CONTEXT! 
+  const { user, logout } = useAuth(); 
 
   const filteredLanguages = filter === 'All' 
     ? LANGUAGES 
     : LANGUAGES.filter(l => l.category === filter);
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 pt-20 pb-16 px-4">
+    <div className="min-h-screen bg-slate-50/50 font-sans text-slate-900">
+      
+      {/* --- NAVBAR --- */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+          
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="bg-blue-600 p-1.5 rounded-lg shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+              <Code2 className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">
+              CodeLearner
+            </span>
+          </Link>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm font-medium text-slate-600 border border-slate-200">
+                  <UserCircle size={16} className="text-blue-500" />
+                  <span className="truncate max-w-[150px]">{user.username || user.email}</span>
+                </div>
+                
+                <Link href="/dashboard" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">
+                  Dashboard
+                </Link>
+                
+                <button 
+                  onClick={logout}
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                  title="Sign Out"
+                >
+                  <LogOut size={20} />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors">
+                  Sign In
+                </Link>
+                
+                <Link href="/signup">
+                  <button className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-blue-500 shadow-md shadow-blue-200 transition-all active:scale-95">
+                    Get Started
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* --- HERO SECTION --- */}
+      <section className="bg-white border-b border-slate-200 pt-16 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold mb-6">
             <Trophy className="w-4 h-4" />
@@ -55,7 +109,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Filter & Grid Section */}
+      {/* --- FILTER & GRID --- */}
       <main className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div className="flex items-center gap-2">
@@ -103,24 +157,15 @@ export default function HomePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Link 
-                  href={`/${lang.id}/docs`} 
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-700 rounded-xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all"
-                >
+                <a href={`/${lang.id}/docs`} className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-700 rounded-xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all">
                   <Star size={14} /> Docs
-                </Link>
-                <Link 
-                href={`/${lang.id}/roadmap`} 
-                className="flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 rounded-2xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all duration-300"
-              >
-                <Trophy size={16} /> Learning Path
-              </Link>
-                <Link 
-                  href={`/${lang.id}/chat`} 
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all"
-                >
+                </a>
+                <a href={`/${lang.id}/roadmap`} className="flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 rounded-2xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all duration-300">
+                  <Trophy size={16} /> Roadmap
+                </a>
+                <a href={`/${lang.id}/chat`} className="col-span-2 flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all">
                   <MessageSquare size={14} /> Chat
-                </Link>
+                </a>
               </div>
             </div>
           ))}

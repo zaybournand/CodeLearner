@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learn2code.backend.auth.dto.LoginResponseDTO;
 import com.learn2code.backend.auth.dto.LoginRequestDTO;
+import com.learn2code.backend.auth.dto.LoginResponseDTO;
+import com.learn2code.backend.auth.service.AuthService;
 import com.learn2code.backend.user.dto.UserRequestDTO;
 import com.learn2code.backend.user.dto.UserResponseDTO;
-import com.learn2code.backend.auth.service.AuthService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
