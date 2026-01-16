@@ -15,8 +15,6 @@ interface ChatMessage {
 }
 
 export default function ChatPage() {
-  // --- PREVIEW FIX ---
-  // In your real Next.js app, uncomment these lines:
   const params = useParams();
   const langId = (params.langId as string).toLowerCase();
   
@@ -35,7 +33,6 @@ export default function ChatPage() {
       }
     }
   }, []);
-  // -------------------------
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
