@@ -18,7 +18,6 @@ import com.learn2code.backend.resource.service.ResourceService;
 
 @RestController
 @RequestMapping("/api/v1/resources")
-
 public class ResourceController {
 
     @Autowired
@@ -34,10 +33,29 @@ public class ResourceController {
         return resourceService.addResource(resource);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Resource> updateResource(@PathVariable Long id, @RequestBody Map<String, Integer> payload) {
-        int score = payload.get("score");
-        Resource updated = resourceService.rateResource(id, score);
-        return ResponseEntity.ok(updated);
+    @PutMapping("/{id}/rate")
+    public ResponseEntity<Resource> rateResource(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        Object scoreObj = payload.get("score");
+
+        if (scoreObj == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            int score = switch (scoreObj) {
+                case Integer i ->
+                    i;
+                case String s ->
+                    Integer.parseInt(s);
+                default ->
+                    Integer.parseInt(scoreObj.toString());
+            };
+
+            Resource updated = resourceService.rateResource(id, score);
+            return ResponseEntity.ok(updated);
+
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

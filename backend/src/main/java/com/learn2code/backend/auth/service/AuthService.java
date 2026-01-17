@@ -30,7 +30,7 @@ public class AuthService {
         // Generate JWT after validation
         String token = jwtService.generateToken(user.getEmail());
 
-        return new LoginResponseDTO(user.getId(), user.getEmail(), user.getUsername(), token);
+        return new LoginResponseDTO(user.getId(), user.getEmail(), user.getUsername(), token, user.getRole());
     }
 
     public UserResponseDTO registerNewUser(UserRequestDTO request) {

@@ -7,6 +7,7 @@ type User = {
     email: string; 
     username?: string; 
     id?: number 
+    role?: string
 } | null;
 
 interface AuthContextType {

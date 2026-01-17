@@ -1,154 +1,295 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useParams } from 'next/navigation'; // In your local VS Code, this works.
-import { Book, ChevronRight, Menu, Code } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import axios from "axios";
+import { 
+  Plus, ExternalLink, Star, Trophy, Loader2, 
+  ThumbsUp, UserCircle 
+} from "lucide-react";
 
-// --- 1. THE DATA (The "Database" for your docs) ---
-// In a real app, you might move this to a separate JSON file or fetch it from your Spring Boot API.
-const DOCS_DATA: any = {
-  react: {
-    title: "React Documentation",
-    color: "text-sky-500",
-    sections: [
-      {
-        id: "intro",
-        title: "Introduction",
-        content: "React is a library for building user interfaces. It lets you compose complex UIs from small and isolated pieces of code called 'components'.",
-        code: `function HelloWorld() {\n  return <h1>Hello, World!</h1>;\n}`
-      },
-      {
-        id: "hooks",
-        title: "Understanding Hooks",
-        content: "Hooks allow you to use state and other React features without writing a class. The most common hooks are useState and useEffect.",
-        code: `const [count, setCount] = useState(0);`
-      }
-    ]
-  },
-  java: {
-    title: "Java Masterclass",
-    color: "text-red-500",
-    sections: [
-      {
-        id: "basics",
-        title: "Java Basics",
-        content: "Java is a class-based, object-oriented programming language. It is designed to have as few implementation dependencies as possible.",
-        code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello Java");\n  }\n}`
-      },
-      {
-        id: "oop",
-        title: "OOP Principles",
-        content: "Java relies heavily on Inheritance, Encapsulation, Polymorphism, and Abstraction.",
-        code: `class Animal {\n  void bark() {\n    System.out.println("Woof");\n  }\n}`
-      }
-    ]
-  },
-  // Default fallback if language doesn't exist
-  default: {
-    title: "Coming Soon",
-    color: "text-slate-500",
-    sections: [
-      {
-        id: "404",
-        title: "Under Construction",
-        content: "We haven't written the docs for this language yet. Check back later!",
-        code: null
-      }
-    ]
-  }
-};
+// --- Types ---
+interface Resource {
+  id: number;
+  title: string;
+  description: string;
+  url: string;
+  averageRating: number;
+  totalVotes: number;
+  addedBy: string;
+}
+
+interface User {
+  email: string;
+  username?: string;
+  role?: string; 
+}
 
 export default function DocsPage() {
-  // 1. Get the language from the URL (e.g., 'java')
-  const params = useParams();
-  const langId = (params.langId as string)?.toLowerCase() || 'react';
+const params = useParams();
+const langId = (params?.langId as string)?.toLowerCase() || "react";
 
-  // 2. Select the data based on the language
-  const currentDocs = DOCS_DATA[langId] || DOCS_DATA['default'];
+  // Auth State
+  const [user, setUser] = useState<User | null>(null);
   
-  // 3. State for the currently selected section (default to the first one)
-  const [activeSection, setActiveSection] = useState(currentDocs.sections[0]);
+  // Data State
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0); 
+
+  // Form State
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({ title: "", description: "", url: "" });
+
+  // --- EFFECT: Check Auth on Load ---
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        setUser(null);
+      }
+    }
+  }, []);
+
+  // --- EFFECT: Fetch Resources ---
+  useEffect(() => {
+    const fetchResources = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`http://localhost:8080/api/v1/resources/${langId}`);
+        setResources(res.data);
+      } catch (err) {
+        console.error("Error loading resources:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, [langId, refreshKey]);
+
+  // --- HANDLER: Add Resource ---
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post("http://localhost:8080/api/v1/resources", {
+        ...formData,
+        topic: langId,
+        addedBy: user.username || user.email
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Reset form and refresh list
+      setShowForm(false);
+      setFormData({ title: "", description: "", url: "" });
+      setRefreshKey(prev => prev + 1);
+      alert("Resource added successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add resource. (Check Backend Logs)");
+    }
+  };
+
+  // --- HANDLER: Rate Resource ---
+  const handleRate = async (id: number, score: number) => {
+    if (!user) {
+        alert("Please log in to rate.");
+        return;
+    }
+    
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`http://localhost:8080/api/v1/resources/${id}/rate`, 
+        { score },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+      // Refresh to show new average score
+      setRefreshKey(prev => prev + 1);
+    } catch (err) {
+      alert("Failed to save rating.");
+    }
+  };
+
+  // --- ADMIN CHECK (UPDATED) ---
+  const isAdmin = user?.role === "ADMIN";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
-      
-      {/* --- LEFT SIDEBAR (Navigation) --- */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col fixed h-full pt-20">
-        <div className="p-6">
-          <h2 className={`text-2xl font-extrabold ${currentDocs.color} mb-6 capitalize`}>
-            {langId} Docs
-          </h2>
-          <nav className="space-y-1">
-            {currentDocs.sections.map((section: any) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section)}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between group ${
-                  activeSection.id === section.id
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                }`}
-              >
-                {section.title}
-                {activeSection.id === section.id && <ChevronRight size={16} />}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </aside>
-
-      {/* --- MAIN CONTENT --- */}
-      <main className="flex-1 md:ml-64 pt-20 p-8 max-w-4xl">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 p-6 md:p-12">
+      <div className="max-w-5xl mx-auto">
         
-        {/* Mobile Header (Only shows on small screens) */}
-        <div className="md:hidden mb-8 flex items-center gap-2 text-slate-500">
-          <Menu size={20} />
-          <span className="font-bold text-slate-900">Table of Contents</span>
-        </div>
-
-        {/* Content Area */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-slate-100 rounded-lg text-slate-500">
-              <Book size={24} />
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-slate-200 pb-8 gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-4xl md:text-5xl font-extrabold capitalize text-slate-900 tracking-tight">
+                {langId} Resources
+                </h1>
+                <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-200">
+                    Community Curation
+                </span>
             </div>
-            <h1 className="text-4xl font-extrabold text-slate-900">
-              {activeSection.title}
-            </h1>
-          </div>
-
-          <div className="prose prose-slate max-w-none">
-            <p className="text-lg text-slate-600 leading-relaxed mb-8">
-              {activeSection.content}
+            <p className="text-slate-500 text-lg">
+              Top-rated guides, videos, and docs curated by the community.
             </p>
-
-            {/* Code Block */}
-            {activeSection.code && (
-              <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-xl my-8 border border-slate-800">
-                <div className="bg-slate-800/50 px-4 py-2 flex items-center justify-between border-b border-white/10">
-                  <span className="text-xs font-mono text-slate-400">Example Code</span>
-                  <Code size={14} className="text-slate-500" />
-                </div>
-                <pre className="p-6 overflow-x-auto">
-                  <code className="font-mono text-sm text-blue-300">
-                    {activeSection.code}
-                  </code>
-                </pre>
-              </div>
-            )}
           </div>
-
-          {/* Navigation Footer */}
-          <div className="mt-16 pt-8 border-t border-slate-200 flex justify-between">
-            <button className="text-slate-400 font-medium hover:text-blue-600 transition-colors">
-              &larr; Previous
+          
+          {/* ADD BUTTON (Admin Only) */}
+          {isAdmin ? (
+            <button 
+              onClick={() => setShowForm(!showForm)}
+              className="flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95"
+            >
+              <Plus size={18} /> 
+              {showForm ? "Close Form" : "Add Resource"}
             </button>
-            <button className="text-blue-600 font-bold hover:text-blue-700 transition-colors">
-              Next Lesson &rarr;
-            </button>
-          </div>
+          ): null}
         </div>
-      </main>
+
+        {/* ADD RESOURCE FORM */}
+        {showForm && (
+          <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 mb-10 animate-in fade-in slide-in-from-top-4 ring-1 ring-black/5">
+            <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
+                <Plus className="text-blue-600" /> New Resource
+            </h3>
+            <form onSubmit={handleAdd} className="space-y-5">
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Title</label>
+                    <input 
+                        className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        placeholder="e.g. React Official Documentation" 
+                        value={formData.title}
+                        onChange={e => setFormData({...formData, title: e.target.value})}
+                        required
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL</label>
+                    <input 
+                        className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        placeholder="https://..." 
+                        value={formData.url}
+                        onChange={e => setFormData({...formData, url: e.target.value})}
+                        required
+                    />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description</label>
+                <textarea 
+                    className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    placeholder="Why is this resource good?" 
+                    rows={3}
+                    value={formData.description}
+                    onChange={e => setFormData({...formData, description: e.target.value})}
+                    required
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button 
+                    type="button" 
+                    onClick={() => setShowForm(false)} 
+                    className="px-5 py-2.5 text-slate-500 font-bold hover:bg-slate-50 rounded-lg transition-colors"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-md transition-all"
+                >
+                    Save Resource
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* LOADING STATE */}
+        {loading && (
+          <div className="flex justify-center py-24">
+            <Loader2 className="animate-spin text-blue-600" size={40} />
+          </div>
+        )}
+
+        {/* RESOURCE LIST */}
+        <div className="space-y-5">
+          {!loading && resources.length === 0 && (
+            <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300">
+              <p className="text-slate-400 text-lg font-medium">No resources found for {langId}.</p>
+              {isAdmin && <p className="text-blue-500 text-sm mt-2">Be the first to add one!</p>}
+            </div>
+          )}
+
+          {resources.map((res, index) => (
+            <div key={res.id} className="group bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col md:flex-row gap-6">
+              
+              {/* RANKING BADGE */}
+              <div className="flex flex-col items-center justify-center min-w-[100px] bg-slate-50 rounded-2xl p-4 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                {index === 0 ? (
+                    <Trophy className="text-yellow-500 mb-2 drop-shadow-sm" size={28} />
+                ) : (
+                    <span className="text-slate-300 font-black text-xl mb-1">#{index + 1}</span>
+                )}
+                <span className="text-3xl font-black text-slate-800 tracking-tight">{res.averageRating ? res.averageRating.toFixed(1) : "0.0"}</span>
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wide mt-1">{res.totalVotes} Votes</span>
+              </div>
+
+              {/* CONTENT */}
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                        <h3 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                            <a href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                            {res.title}
+                            <ExternalLink size={20} className="text-slate-300 group-hover:text-blue-400" />
+                            </a>
+                        </h3>
+                        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                            <UserCircle size={14} /> Added by {res.addedBy}
+                        </div>
+                    </div>
+                    
+                    <p className="text-slate-600 leading-relaxed mb-6">
+                        {res.description}
+                    </p>
+                </div>
+
+                {/* ACTION BAR */}
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Rate Quality:</span>
+                  <div className="flex gap-2">
+                    {[10, 8, 5].map(score => (
+                        <button 
+                        key={score}
+                        onClick={() => handleRate(res.id, score)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                            score >= 8 
+                            ? 'bg-green-50 text-green-700 hover:bg-green-100' 
+                            : score >= 5 
+                            ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100'
+                            : 'bg-red-50 text-red-700 hover:bg-red-100'
+                        }`}
+                        >
+                        {score === 10 ? <ThumbsUp size={12} /> : <Star size={12} />} {score}
+                        </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 }

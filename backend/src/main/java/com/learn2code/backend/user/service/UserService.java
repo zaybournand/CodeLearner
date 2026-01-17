@@ -35,8 +35,13 @@ public class UserService {
         User user = new User();
         user.setUsername(userRequestDTO.getUsername());
         user.setEmail(userRequestDTO.getEmail());
-
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+
+        if (user.getEmail().equals("zay@gmail.com")) {
+            user.setRole("ADMIN");
+        } else {
+            user.setRole("USER");
+        }
 
         User savedUser = userRepository.save(user);
         return new UserResponseDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());

@@ -10,9 +10,12 @@ const Input = ({ className = "", ...props }: any) => (
   />
 );
 
-const Button = ({ children, className = "", ...props }: any) => (
+// Simplified Button to ensure it works
+const Button = ({ children, disabled, className = "", ...props }: any) => (
   <button
-    className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 ${className}`}
+    type="submit" // FORCE SUBMIT TYPE
+    disabled={disabled}
+    className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     {...props}
   >
     {children}
@@ -25,13 +28,16 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [feedback, setFeedback] = useState({ message: "", type: "" });
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback({ message: "", type: "" });
+    setLoading(true); // Start loading
 
     if (password !== confirm) {
       setFeedback({ message: "Passwords do not match.", type: "error" });
+      setLoading(false);
       return;
     }
 
@@ -48,17 +54,21 @@ export default function SignUp() {
         { email, password }
       );
 
-      // 3. SAVE TOKEN & USERNAME
+      // 3. SAVE TOKEN & USER DATA
       const token = loginRes.data.token || loginRes.data.jwt;
       if (token) {
         localStorage.setItem("token", token);
         
         const userToSave = {
-            username: username, // <--- SAVING USERNAME HERE
+            username: username,
             email: loginRes.data.email || email,
-            id: loginRes.data.id
+            id: loginRes.data.id,
+            role: loginRes.data.role // <--- IMPORTANT: Save the role here!
         };
         localStorage.setItem("user", JSON.stringify(userToSave));
+
+        // Trigger UI update for the Navbar
+        window.dispatchEvent(new Event("storage"));
 
         setFeedback({ message: "Account created! Logging you in...", type: "success" });
         
@@ -74,6 +84,8 @@ export default function SignUp() {
           errorMessage = err.response.data.message;
       }
       setFeedback({ message: errorMessage, type: "error" });
+    } finally {
+      setLoading(false); // Stop loading regardless of success/failure
     }
   };
 
@@ -98,6 +110,7 @@ export default function SignUp() {
                 onChange={(e: any) => setUsername(e.target.value)}
                 required
               />
+              
               <Input
                 type="email"
                 placeholder="Email Address"
@@ -120,8 +133,8 @@ export default function SignUp() {
                 required
               />
 
-              <Button type="submit" className="mt-2">
-                Create Account
+              <Button disabled={loading} className="mt-2">
+                {loading ? "Creating Account..." : "Create Account"}
               </Button>
 
               {feedback.message && (
