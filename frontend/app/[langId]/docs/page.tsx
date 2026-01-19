@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { 
   Plus, ExternalLink, Star, Trophy, Loader2, 
-  ThumbsUp, UserCircle 
+  ThumbsUp, UserCircle, ArrowLeft
 } from "lucide-react";
 
 // --- Types ---
@@ -29,6 +29,9 @@ interface User {
 export default function DocsPage() {
 const params = useParams();
 const langId = (params?.langId as string)?.toLowerCase() || "react";
+
+  // Navigation
+  const router = useRouter();
 
   // Auth State
   const [user, setUser] = useState<User | null>(null);
@@ -54,6 +57,10 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
       }
     }
   }, []);
+  
+  const handleGoBack = () => {
+    router.push('/');
+  }
 
   // --- EFFECT: Fetch Resources ---
   useEffect(() => {
@@ -128,7 +135,15 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-slate-200 pb-8 gap-4">
-          <div>
+          <div className="flex-1">
+             {/* BACK BUTTON UI */}
+            <button 
+              onClick={handleGoBack}
+              className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-4 font-medium transition-colors"
+            >
+              <ArrowLeft size={18} /> Return Home
+            </button>
+
             <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-4xl md:text-5xl font-extrabold capitalize text-slate-900 tracking-tight">
                 {langId} Resources

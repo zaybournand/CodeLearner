@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation"; 
-import { Send, Users, Loader2, UserCircle } from "lucide-react";
+import { useParams, useRouter } from "next/navigation"; 
+import { Send, Users, Loader2, UserCircle, ArrowLeft } from "lucide-react";
 import axios from "axios";
 
 // --- INTERFACE ---
@@ -17,6 +17,7 @@ interface ChatMessage {
 export default function ChatPage() {
   const params = useParams();
   const langId = (params.langId as string).toLowerCase();
+  const router = useRouter();
   
   // --- Local Auth Logic ---
   const [user, setUser] = useState<{ email: string; username?: string } | null>(null);
@@ -39,6 +40,10 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleGoBack = () => {
+    router.push("/");
+  }
 
   // 1. Fetch Messages
   const fetchMessages = async () => {
@@ -103,18 +108,30 @@ export default function ChatPage() {
       console.error("Failed to send message", err);
     }
   };
-
+ 
   return (
     <div className="max-w-6xl mx-auto h-[calc(100vh-64px)] flex flex-col p-4 font-sans text-slate-800">
       
       {/* Header */}
       <div className="bg-white border border-slate-200 rounded-t-2xl p-4 flex justify-between items-center shadow-sm">
-        <div>
-            <h2 className="text-xl font-bold capitalize flex items-center gap-2">
-                {langId} Community
-            </h2>
-            <p className="text-xs text-slate-400">Topic: {langId}</p>
+        <div className="flex items-center gap-4">
+            {/* BACK BUTTON */}
+            <button 
+              onClick={handleGoBack}
+              className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition-colors"
+              title="Return Home"
+            >
+              <ArrowLeft size={20} />
+            </button>
+
+            <div>
+                <h2 className="text-xl font-bold capitalize flex items-center gap-2">
+                    {langId} Community
+                </h2>
+                <p className="text-xs text-slate-400">Topic: {langId}</p>
+            </div>
         </div>
+
         <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-sm font-bold border border-emerald-100">
           <Users size={16} /> Live
         </div>
