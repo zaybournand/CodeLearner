@@ -23,6 +23,7 @@ interface User {
   email: string;
   username?: string;
   role?: string; 
+  id?: number;
 }
 
 export default function DocsPage() {
@@ -107,7 +108,8 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     try {
       const token = localStorage.getItem("token");
       await axios.put(`http://localhost:8080/api/v1/resources/${id}/rate`, 
-        { score },
+        { score : score,
+          userId : user.id},
         { headers: { Authorization: `Bearer ${token}` }}
       );
       // Refresh to show new average score

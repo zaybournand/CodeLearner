@@ -36,8 +36,9 @@ public class ResourceController {
     @PutMapping("/{id}/rate")
     public ResponseEntity<Resource> rateResource(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         Object scoreObj = payload.get("score");
+        Object userIdObj = payload.get("userId");
 
-        if (scoreObj == null) {
+        if (scoreObj == null || userIdObj == null) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -51,7 +52,14 @@ public class ResourceController {
                     Integer.parseInt(scoreObj.toString());
             };
 
-            Resource updated = resourceService.rateResource(id, score);
+            Long userId = switch (userIdObj) {
+                case Number n -> n.longValue(); 
+                case String s -> Long.parseLong(s);
+                default -> Long.parseLong(userIdObj.toString());
+            };
+            
+
+            Resource updated = resourceService.rateResource(id, score, userId);
             return ResponseEntity.ok(updated);
 
         } catch (NumberFormatException e) {
