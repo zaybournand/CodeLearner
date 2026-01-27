@@ -21,20 +21,18 @@ public class DashboardService {
     private UserProgressRepository progressRepository;
 
     public List<DashboardDTO> getUserStats(Long userId) {
-        // 1. Get all unique topics (e.g. "java", "react")
-        // Note: Ensure findDistinctTopics() is defined in RoadmapStepRepository
+        // Get all unique topics (e.g. "java", "react")
         List<String> allTopics = stepRepository.findDistinctTopics();
         List<DashboardDTO> stats = new ArrayList<>();
 
         for (String topic : allTopics) {
-            // 2. Get all steps for this specific topic
+            // Get all steps for this specific topic
             List<RoadmapStep> steps = stepRepository.findByTopicOrderByStepOrderAsc(topic);
             int total = steps.size();
             int completed = 0;
 
-            // 3. Count how many steps this user has completed
+            // Count how many steps this user has completed
             for (RoadmapStep step : steps) {
-                // Check if a progress record exists and is marked as true
                 if (progressRepository.findByUserIdAndStepId(userId, step.getId())
                         .map(UserProgress::isCompleted)
                         .orElse(false)) {
@@ -42,7 +40,7 @@ public class DashboardService {
                 }
             }
 
-            // 4. Add to list (only if the topic actually has steps)
+            // Add to list (only if the topic actually has steps)
             if (total > 0) {
                 stats.add(new DashboardDTO(topic, total, completed));
             }

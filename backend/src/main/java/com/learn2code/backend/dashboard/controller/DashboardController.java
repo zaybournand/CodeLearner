@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/dashboard") // Dedicated route
+@RequestMapping("/api/v1/dashboard")
 public class DashboardController {
 
     @Autowired
     private DashboardService dashboardService;
 
-    // GET /api/v1/dashboard/stats?userId=1
     @GetMapping("/stats")
     public List<DashboardDTO> getDashboardStats(@RequestParam Long userId) {
         return dashboardService.getUserStats(userId);
