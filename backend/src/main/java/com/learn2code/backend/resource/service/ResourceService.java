@@ -17,7 +17,6 @@ public class ResourceService {
     @Autowired
     private ResourceRepository resourceRepository;
 
-    // 1. Inject the Rating Repository (Required for "One Vote" logic)
     @Autowired
     private ResourceRatingRepository ratingRepository;
 
@@ -29,10 +28,11 @@ public class ResourceService {
         return resourceRepository.save(resource);
     }
 
-    // 2. Updated Method to match your Controller: (ID, Score, UserID)
     @Transactional
     public Resource rateResource(Long resourceId, int score, Long userId) {
-        if (score < 1 || score > 10) throw new IllegalArgumentException("Score must be 1-10");
+        if (score < 1 || score > 10) {
+            throw new IllegalArgumentException("Score must be 1-10");
+        }
 
         // Find the Resource
         Resource resource = resourceRepository.findById(resourceId)
@@ -42,10 +42,9 @@ public class ResourceService {
         Optional<ResourceRating> existingRating = ratingRepository.findByUserIdAndResourceId(userId, resourceId);
 
         if (existingRating.isPresent()) {
-            // --- USER HAS VOTED BEFORE: UPDATE IT ---
             ResourceRating rating = existingRating.get();
             int oldScore = rating.getScore();
-            
+
             // Update the record in the join table
             rating.setScore(score);
             ratingRepository.save(rating);
@@ -53,9 +52,7 @@ public class ResourceService {
             // Update the stats on the Resource object
             long newSum = resource.getSumRating() - oldScore + score;
             resource.setSumRating(newSum);
-            // Count stays the same
         } else {
-            // --- NEW VOTE: CREATE IT ---
             ResourceRating newRating = new ResourceRating(userId, resourceId, score);
             ratingRepository.save(newRating);
 

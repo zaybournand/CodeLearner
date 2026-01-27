@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/**").permitAll()
                 .requestMatchers("/api/v1/chat/**").permitAll()
                 .requestMatchers("/api/v1/resources/**").permitAll()
+                .requestMatchers("/api/v1/roadmaps/**").permitAll()
+                .requestMatchers("/api/v1/dashboard/**").permitAll()
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

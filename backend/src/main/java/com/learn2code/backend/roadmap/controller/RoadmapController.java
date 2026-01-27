@@ -1,14 +1,21 @@
 package com.learn2code.backend.roadmap.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.learn2code.backend.roadmap.dto.RoadmapStepDTO;
 import com.learn2code.backend.roadmap.model.RoadmapStep;
 import com.learn2code.backend.roadmap.service.RoadmapService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/roadmaps")
@@ -36,7 +43,6 @@ public class RoadmapController {
             return ResponseEntity.badRequest().body("UserId required");
         }
 
-        // FIX: Changed 'togglePassword' to 'toggleProgress' to match your Service
         roadmapService.toggleProgress(userId, stepId);
         return ResponseEntity.ok("Toggled");
     }
