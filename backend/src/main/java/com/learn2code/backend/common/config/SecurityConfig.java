@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.http.HttpMethod;
 import com.learn2code.backend.auth.jwt.JWTFilter;
 
 @Configuration
@@ -39,14 +39,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/skills/**").permitAll()
-                .requestMatchers("/api/v1/users/**").permitAll()
-                .requestMatchers("/api/v1/chat/**").permitAll()
-                .requestMatchers("/api/v1/resources/**").permitAll()
-                .requestMatchers("/api/v1/roadmaps/**").permitAll()
-                .requestMatchers("/api/v1/dashboard/**").permitAll()
+                // 1. PUBLIC ENDPOINTS (No Login Required)
+                .requestMatchers("/api/v1/auth/**").permitAll() // Sign Up / Login
+                .requestMatchers(HttpMethod.GET, "/api/v1/resources/**").permitAll() // Read Docs
+                .requestMatchers(HttpMethod.GET, "/api/v1/roadmaps/**").permitAll() // Read Roadmaps
+                .requestMatchers("/ws/**").permitAll() // WebSocket Handshake (Handles auth internally usually)
+
+                // 2. PRIVATE ENDPOINTS (Login Required)
+                .requestMatchers("/api/v1/dashboard/**").authenticated() // My Stats
+                .requestMatchers("/api/v1/chat/**").authenticated() // Chatting
+                .requestMatchers("/api/v1/users/**").authenticated() // User Data
+
+                // 3. MUTATIONS (POST/PUT/DELETE on Resources/Roadmaps)
+                // Even though GET is public, changing them requires login
+                .requestMatchers("/api/v1/resources/**").authenticated()
+                .requestMatchers("/api/v1/roadmaps/**").authenticated()
+                // 4. Default Rule: Everything else is locked
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

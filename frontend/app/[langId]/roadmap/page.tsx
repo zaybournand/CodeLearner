@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-// Using standard imports to avoid build errors in preview
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { 
@@ -51,14 +50,20 @@ export default function RoadmapPage() {
     }
   }, []);
 
+  
   // 2. Fetch Roadmap Data
   const fetchRoadmap = async () => {
-    // If we have a user, pass the ID to get completion status
-    // If not, we just get the list without checkmarks
+    setLoading(true);
     const userIdQuery = user?.id ? `?userId=${user.id}` : "";
     
     try {
-      const res = await axios.get(`http://localhost:8080/api/v1/roadmaps/${langId}${userIdQuery}`);
+      const token = localStorage.getItem("token");
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+      const res = await axios.get(
+        `http://localhost:8080/api/v1/roadmaps/${langId}${userIdQuery}`,
+        config
+      );
       setSteps(res.data);
     } catch (err) {
       console.error("Failed to load roadmap", err);
@@ -69,7 +74,7 @@ export default function RoadmapPage() {
 
   // Re-fetch when user or language changes
   useEffect(() => {
-    if (user !== undefined) { // Wait for user check to finish
+    if (user !== undefined) { 
         fetchRoadmap();
     }
   }, [langId, user]);
@@ -82,18 +87,20 @@ export default function RoadmapPage() {
     }
 
     try {
-      // Optimistic Update (Update UI instantly)
       setSteps(prev => prev.map(s => 
         s.id === stepId ? { ...s, completed: !s.completed } : s
       ));
 
-      // Send to Backend
-      await axios.post(`http://localhost:8080/api/v1/roadmaps/${stepId}/toggle`, {
-        userId: user.id
-      });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:8080/api/v1/roadmaps/${stepId}/toggle`, 
+        { userId: user.id },
+        { headers: { Authorization: `Bearer ${token}` } } 
+      );
     } catch (err) {
+      console.error(err);
       alert("Failed to save progress");
-      fetchRoadmap(); // Revert on error
+      fetchRoadmap(); 
     }
   };
 
@@ -101,16 +108,24 @@ export default function RoadmapPage() {
   const handleAddStep = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        await axios.post("http://localhost:8080/api/v1/roadmaps", {
-            topic: langId,
-            title: newStep.title,
-            description: newStep.description,
-            stepOrder: steps.length + 1
-        });
+        const token = localStorage.getItem("token");
+
+        await axios.post(
+            "http://localhost:8080/api/v1/roadmaps", 
+            {
+                topic: langId,
+                title: newStep.title,
+                description: newStep.description,
+                stepOrder: steps.length + 1
+            },
+            { headers: { Authorization: `Bearer ${token}` } } 
+        );
+
         setNewStep({ title: "", description: "" });
         setShowAddForm(false);
         fetchRoadmap();
     } catch (err) {
+        console.error(err);
         alert("Failed to add step");
     }
   };

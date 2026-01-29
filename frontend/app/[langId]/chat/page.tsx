@@ -45,18 +45,27 @@ export default function ChatPage() {
     router.push("/");
   }
 
-  // 1. Fetch Messages
-  const fetchMessages = async () => {
-    try {
-      // NOW THIS IS DYNAMIC: Uses the real langId from the URL
-      const res = await axios.get(`http://localhost:8080/api/v1/chat/${langId}`);
-      setMessages(res.data);
-    } catch (err) {
-      console.error("Error fetching chat:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+// 1. Fetch Messages (GET)
+const fetchMessages = async () => {
+  try {
+    const token = localStorage.getItem("token"); 
+    
+    // If no token, we can't fetch private chat history
+    if (!token) return; 
+
+    const res = await axios.get(`http://localhost:8080/api/v1/chat/${langId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    setMessages(res.data);
+  } catch (err) {
+    // Don't log 403 errors if the user just isn't logged in yet
+    console.error("Error fetching chat:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 2. Polling (Re-runs when langId changes)
   useEffect(() => {
