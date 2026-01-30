@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
+import { API_URL } from "../utils/api";
 
 const Input = ({ className = "", ...props }: any) => (
   <input
@@ -31,7 +32,7 @@ export default function SignIn() {
 
     try {       
       const res = await axios.post(
-        "http://localhost:8080/api/v1/auth/login",
+        `${API_URL}/api/v1/auth/login`, 
         { email, password },
         { withCredentials: true } 
       );

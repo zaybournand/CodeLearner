@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
-
+import { API_URL } from "../utils/api";
 // Standard HTML components
 const Input = ({ className = "", ...props }: any) => (
   <input
@@ -44,13 +44,13 @@ export default function SignUp() {
     try {
       // 1. REGISTER
       await axios.post(
-        "http://localhost:8080/api/v1/auth/register",
+        `${API_URL}/api/v1/auth/register`,
         { username, email, password }
       );
 
       // 2. AUTO-LOGIN
       const loginRes = await axios.post(
-        "http://localhost:8080/api/v1/auth/login",
+        `${API_URL}/api/v1/auth/login`,
         { email, password }
       );
 

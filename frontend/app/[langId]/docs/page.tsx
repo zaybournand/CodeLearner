@@ -7,6 +7,7 @@ import {
   Plus, ExternalLink, Star, Trophy, Loader2, 
   ThumbsUp, UserCircle, ArrowLeft
 } from "lucide-react";
+import { API_URL } from "@/app/utils/api";
 
 // --- Types ---
 interface Resource {
@@ -67,7 +68,7 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     const fetchResources = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:8080/api/v1/resources/${langId}`);
+        const res = await axios.get(`${API_URL}/api/v1/resources/${langId}`);
         setResources(res.data);
       } catch (err) {
         console.error("Error loading resources:", err);
@@ -86,7 +87,7 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:8080/api/v1/resources", {
+      await axios.post(`${API_URL}/api/v1/resources`, {
         ...formData,
         topic: langId,
         addedBy: user.username || user.email
@@ -114,7 +115,7 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:8080/api/v1/resources/${id}/rate`, 
+      await axios.put(`${API_URL}/api/v1/resources/${id}/rate`, 
         { score : score,
           userId : user.id},
         { headers: { Authorization: `Bearer ${token}` }}

@@ -7,6 +7,7 @@ import {
   CheckCircle2, Circle, ArrowDown, BookOpen, 
   MessageSquare, ArrowLeft, Loader2, Plus 
 } from 'lucide-react';
+import { API_URL } from "@/app/utils/api";
 
 // --- Types ---
 interface RoadmapStep {
@@ -61,7 +62,7 @@ export default function RoadmapPage() {
       const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
       const res = await axios.get(
-        `http://localhost:8080/api/v1/roadmaps/${langId}${userIdQuery}`,
+        `${API_URL}/api/v1/roadmaps/${langId}${userIdQuery}`,
         config
       );
       setSteps(res.data);
@@ -93,7 +94,7 @@ export default function RoadmapPage() {
 
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://localhost:8080/api/v1/roadmaps/${stepId}/toggle`, 
+        `${API_URL}/api/v1/roadmaps/${stepId}/toggle`, 
         { userId: user.id },
         { headers: { Authorization: `Bearer ${token}` } } 
       );
@@ -111,7 +112,7 @@ export default function RoadmapPage() {
         const token = localStorage.getItem("token");
 
         await axios.post(
-            "http://localhost:8080/api/v1/roadmaps", 
+            `${API_URL}/api/v1/roadmaps`, 
             {
                 topic: langId,
                 title: newStep.title,

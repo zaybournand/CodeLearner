@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation"; 
 import { Send, Users, Loader2, UserCircle, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { API_URL } from "@/app/utils/api";
 
 // --- INTERFACE ---
 interface ChatMessage {
@@ -53,7 +54,7 @@ const fetchMessages = async () => {
     // If no token, we can't fetch private chat history
     if (!token) return; 
 
-    const res = await axios.get(`http://localhost:8080/api/v1/chat/${langId}`, {
+    const res = await axios.get(`${API_URL}/api/v1/chat/${langId}`, {
       headers: {
         Authorization: `Bearer ${token}` 
       }
@@ -69,11 +70,11 @@ const fetchMessages = async () => {
 
   // 2. Polling (Re-runs when langId changes)
   useEffect(() => {
-    setLoading(true); // Show loading when switching rooms
+    setLoading(true); 
     fetchMessages(); 
     const interval = setInterval(fetchMessages, 2000); 
     return () => clearInterval(interval); 
-  }, [langId]); // <--- dependency array ensures we switch rooms correctly
+  }, [langId]); 
 
   // 3. Auto-scroll
   useEffect(() => {
@@ -104,7 +105,7 @@ const fetchMessages = async () => {
       // Send to backend with Auth Header
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:8080/api/v1/chat", 
+        `${API_URL}/api/v1/chat`, 
         newMessage,
         {
           headers: {

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Removed external navigation imports to prevent preview errors
-// import { useRouter } from "next/navigation"; 
+import { API_URL } from "../utils/api";
 import axios from "axios";
 import { 
   Trophy, ArrowRight, Loader2, BookOpen, Layout, CheckCircle2 
@@ -46,7 +45,7 @@ export default function DashboardPage() {
       
       try {
         // Calling your new dedicated Dashboard Controller
-        const res = await axios.get(`http://localhost:8080/api/v1/dashboard/stats?userId=${user.id}`, {
+        const res = await axios.get(`${API_URL}/api/v1/dashboard/stats?userId=${user.id}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });
         setStats(res.data);
