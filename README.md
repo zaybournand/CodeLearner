@@ -1,126 +1,41 @@
-Learn2Code 🚀
+# 🧠 Learn2Code: A Comprehensive Learning Platform
 
-Learn2Code is a full-stack skill management system designed to help developers track their technical competencies and growth. Built using modern enterprise standards, it implements a secure REST API with a responsive React frontend.
+Learn2Code is a full-stack web application designed to help users learn and practice programming languages from beginner to expert. Users can chat in language-specific channels, explore and rate curated documentation, follow personalized learning roadmaps, and track progress through a clear dashboard. It makes coding education interactive, social, and progress-driven.
 
-🛠 Tech Stack
+## 🚀 Features
 
-Backend: Java 17+, Spring Boot 3, Spring Security (JWT), Spring Data JPA
+- **User Authentication**: Secure login and registration system using Spring Security and JWT.
+- **Dashboard**: Personalized dashboard for users to track their progress.
+- **Chat Functionality**: Engage in real-time discussions with other users on specific topics.
+- **Resource Management**: Users can view and rate programming resources (e.g., tutorials, videos, articles) provided by the admin. Documents are ranked from best to worst based on user ratings.
+- **Roadmap Planning**: Step-by-step learning roadmaps to master your language.
 
-Frontend: React (Vite), Tailwind CSS
+## 🛠️ Tech Stack
 
-Database: H2 (In-memory for dev) / MySQL (Production)
+- **Frontend**: Next.js, React, TypeScript
+- **Backend**: Spring Boot, Java
+- **Database**: PostgreSQL
+- **Authentication**: JSON Web Tokens (JWT)
+- **Real-time Communication**: WebSockets (in progress)
+- **Build Tool**: Maven
+- **Package Manager**: npm
 
-Architecture: Controller-Service-Repository (Layered)
+## 📦 Installation
 
-⚡️ Quick Start
+To get started with Learn2Code, follow these steps:
 
-1. Backend (Spring Boot)
+1. Clone the repository: `git clone https://github.com/learn2code/learn2code.git`
+2. Install dependencies: `npm install` (for frontend) and `mvn install` (for backend)
+3. Start the frontend: `npm run dev`
+4. Start the backend: `mvn spring-boot:run`
 
-The backend runs on port 8080.
+## 💻 Usage
 
-cd backend
-./mvnw spring-boot:run
+1. Access the platform: `http://localhost:3000` (for frontend) and `http://localhost:8080` (for backend)
+2. Register a new user: Fill out the registration form and submit
+3. Login: Enter your credentials and submit
+4. Explore language-specific chats, view and rate documentation, follow roadmaps, and track your progress.
 
-Key Configuration:
+## 📬 Contact
 
-Server Port: 8080
-
-Base API Path: /api/v1 (e.g., http://localhost:8080/api/v1/skills)
-
-Security: JWT Authentication architecture is in place.
-
-Current Dev Mode: Endpoints under /api/v1/auth/** and /api/v1/skills/** are set to permitAll() for testing.
-
-2. Frontend (React)
-
-The frontend runs on port 5173 (Vite default) or 3000.
-
-cd frontend
-npm install
-npm run dev
-
-Important: Ensure your API_URL in App.jsx points to http://localhost:8080/api/v1/skills.
-
-🔌 API Endpoints
-
-Method
-
-Endpoint
-
-Description
-
-Access
-
-GET
-
-/api/v1/skills
-
-List all skills
-
-Public (Dev)
-
-POST
-
-/api/v1/skills
-
-Create a new skill
-
-Public (Dev)
-
-GET
-
-/api/v1/skills/{id}
-
-Get skill details
-
-Public (Dev)
-
-DELETE
-
-/api/v1/skills/{id}
-
-Remove a skill
-
-Public (Dev)
-
-POST
-
-/api/v1/auth/signup
-
-Register new user
-
-Public
-
-POST
-
-/api/v1/auth/login
-
-Login & Get Token
-
-Public
-
-🚧 Current Status & TODOs
-
-[x] Basic CRUD for Skills
-
-[x] Database Entity & Relationships
-
-[x] Security Configuration (CORS & CSRF disabled)
-
-[ ] Finalize JWT Token generation logic
-
-[ ] Connect "Sign Up" form to Backend
-
-[ ] Add User <-> Skill relationship (Many-to-Many)
-
-🐛 Troubleshooting
-
-Getting a 403 Forbidden Error?
-
-Check your URL: It must start with /api/v1/....
-
-Check the Controller: Ensure your Controller class has @RequestMapping("/api/v1/...").
-
-Check Security Config: Ensure SecurityConfig.java allows that specific matcher.
-
-Check JWT Filter: Ensure the filter chain continues (filterChain.doFilter) even if no token is present, allowing the permitAll configuration to take effect.
+📧 zaybournand@gmail.com
