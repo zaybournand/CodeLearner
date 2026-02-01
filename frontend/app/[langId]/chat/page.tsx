@@ -46,7 +46,7 @@ export default function ChatPage() {
     router.push("/");
   }
 
-// 1. Fetch Messages (GET)
+
 const fetchMessages = async () => {
   try {
     const token = localStorage.getItem("token"); 
@@ -61,14 +61,12 @@ const fetchMessages = async () => {
     });
     setMessages(res.data);
   } catch (err) {
-    // Don't log 403 errors if the user just isn't logged in yet
     console.error("Error fetching chat:", err);
   } finally {
     setLoading(false);
   }
 };
 
-  // 2. Polling (Re-runs when langId changes)
   useEffect(() => {
     setLoading(true); 
     fetchMessages(); 
@@ -76,12 +74,10 @@ const fetchMessages = async () => {
     return () => clearInterval(interval); 
   }, [langId]); 
 
-  // 3. Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 4. Send Message
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || !user) return;

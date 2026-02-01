@@ -127,7 +127,7 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     }
   };
 
-  // --- ADMIN CHECK (UPDATED) ---
+  // --- ADMIN CHECK ---
   const isAdmin = user?.role === "ADMIN";
 
   return (

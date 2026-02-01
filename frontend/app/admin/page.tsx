@@ -6,7 +6,6 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 
 export default function AdminDashboard() {
-  // In a real app, you would fetch this from your Spring Boot /api/admin/roadmaps
   const [activeLang, setActiveLang] = useState('react');
 
   return (

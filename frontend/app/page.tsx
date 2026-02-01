@@ -32,7 +32,6 @@ const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'Mobile', 'Systems
 export default function HomePage() {
   const [filter, setFilter] = useState('All');
   
-  // USE THE CONTEXT! 
   const { user, logout } = useAuth(); 
 
   const filteredLanguages = filter === 'All' 

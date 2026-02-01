@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/api";
-// Standard HTML components
+
 const Input = ({ className = "", ...props }: any) => (
   <input
     className={`w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200 ${className}`}
@@ -13,7 +13,7 @@ const Input = ({ className = "", ...props }: any) => (
 // Simplified Button to ensure it works
 const Button = ({ children, disabled, className = "", ...props }: any) => (
   <button
-    type="submit" // FORCE SUBMIT TYPE
+    type="submit" 
     disabled={disabled}
     className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     {...props}
@@ -28,12 +28,12 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [feedback, setFeedback] = useState({ message: "", type: "" });
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false); 
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback({ message: "", type: "" });
-    setLoading(true); // Start loading
+    setLoading(true); 
 
     if (password !== confirm) {
       setFeedback({ message: "Passwords do not match.", type: "error" });
@@ -42,19 +42,19 @@ export default function SignUp() {
     }
 
     try {
-      // 1. REGISTER
+      // REGISTER
       await axios.post(
         `${API_URL}/api/v1/auth/register`,
         { username, email, password }
       );
 
-      // 2. AUTO-LOGIN
+      // AUTO-LOGIN
       const loginRes = await axios.post(
         `${API_URL}/api/v1/auth/login`,
         { email, password }
       );
 
-      // 3. SAVE TOKEN & USER DATA
+      // SAVE TOKEN & USER DATA
       const token = loginRes.data.token || loginRes.data.jwt;
       if (token) {
         localStorage.setItem("token", token);
@@ -63,7 +63,7 @@ export default function SignUp() {
             username: username,
             email: loginRes.data.email || email,
             id: loginRes.data.id,
-            role: loginRes.data.role // <--- IMPORTANT: Save the role here!
+            role: loginRes.data.role 
         };
         localStorage.setItem("user", JSON.stringify(userToSave));
 

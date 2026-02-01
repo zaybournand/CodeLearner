@@ -39,7 +39,7 @@ export default function RoadmapPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStep, setNewStep] = useState({ title: "", description: "" });
 
-  // 1. Check Auth
+  // Check Auth
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -52,7 +52,7 @@ export default function RoadmapPage() {
   }, []);
 
   
-  // 2. Fetch Roadmap Data
+  // Fetch Roadmap Data
   const fetchRoadmap = async () => {
     setLoading(true);
     const userIdQuery = user?.id ? `?userId=${user.id}` : "";
@@ -80,7 +80,7 @@ export default function RoadmapPage() {
     }
   }, [langId, user]);
 
-  // 3. Toggle Completion
+  // Toggle Completion
   const handleToggle = async (stepId: number) => {
     if (!user) {
         alert("Please log in to track your progress.");
@@ -105,7 +105,7 @@ export default function RoadmapPage() {
     }
   };
 
-  // 4. Add Step (Admin Only)
+  // Add Step (Admin Only)
   const handleAddStep = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

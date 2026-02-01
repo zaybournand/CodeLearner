@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Check Auth
+  // Check Auth
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -38,7 +38,7 @@ export default function DashboardPage() {
     setUser(JSON.parse(storedUser));
   }, []);
 
-  // 2. Fetch Stats from NEW Dashboard Endpoint
+  // Fetch Stats from NEW Dashboard Endpoint
   useEffect(() => {
     const fetchStats = async () => {
       if (!user) return;

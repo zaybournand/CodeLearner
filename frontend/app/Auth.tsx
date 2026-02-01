@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// 1. ADD USERNAME TO THE TYPE DEFINITION
 type User = { 
     email: string; 
     username?: string; 
