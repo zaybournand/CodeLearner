@@ -8,7 +8,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.GetMapping; // Imported all annotations (PostMapping, RequestBody, etc.)
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,21 +25,17 @@ public class ChatController {
     @Autowired
     private ChatService chatService;
 
-    // 1. GET: Fetch messages (Matches your frontend axios.get)
     @GetMapping("/{topic}")
     public List<Chat> getMessagesByTopic(@PathVariable String topic) {
         return chatService.getMessagesByTopic(topic);
     }
 
-    // 2. POST: Send a message (Matches your frontend axios.post)
-    // --- THIS WAS MISSING ---
     @PostMapping
     public Chat createMessage(@RequestBody Chat message) {
         message.setTimestamp(LocalDateTime.now());
         return chatService.saveMessage(message);
     }
 
-    // 3. WebSocket: Keep this for future real-time features
     @MessageMapping("/sendMessage/{topic}")
     @SendTo("/topic/messages/{topic}")
     public Chat sendMessage(
