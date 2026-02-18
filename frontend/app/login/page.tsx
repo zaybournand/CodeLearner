@@ -67,7 +67,6 @@ export default function SignIn() {
       console.error(err);
       let errorMessage = "Login failed.";
       
-      // Handle specific backend errors
       if (err.response) {
           if (err.response.status === 401 || err.response.status === 500) {
              errorMessage = "Invalid email or password. (Did you restart the server?)";
