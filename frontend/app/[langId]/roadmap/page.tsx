@@ -8,7 +8,7 @@ import {
   MessageSquare, ArrowLeft, Loader2, Plus 
 } from 'lucide-react';
 import { API_URL } from "@/app/utils/api";
-
+import { useAuth } from "@/app/Auth";
 // --- Types ---
 interface RoadmapStep {
   id: number;
@@ -22,6 +22,7 @@ interface User {
   email: string;
   role?: string;
 }
+axios.defaults.withCredentials = true;
 
 export default function RoadmapPage() {
   const params = useParams();
@@ -32,39 +33,20 @@ export default function RoadmapPage() {
 
   // State
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const {user} = useAuth();
   const [loading, setLoading] = useState(true);
   
   // Admin State
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStep, setNewStep] = useState({ title: "", description: "" });
 
-  // Check Auth
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("User parse error");
-      }
-    }
-  }, []);
-
-  
   // Fetch Roadmap Data
   const fetchRoadmap = async () => {
     setLoading(true);
     const userIdQuery = user?.id ? `?userId=${user.id}` : "";
     
     try {
-      const token = localStorage.getItem("token");
-      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-
-      const res = await axios.get(
-        `${API_URL}/api/v1/roadmaps/${langId}${userIdQuery}`,
-        config
-      );
+      const res = await axios.get(`${API_URL}/api/v1/roadmaps/${langId}${userIdQuery}`);
       setSteps(res.data);
     } catch (err) {
       console.error("Failed to load roadmap", err);
@@ -92,11 +74,9 @@ export default function RoadmapPage() {
         s.id === stepId ? { ...s, completed: !s.completed } : s
       ));
 
-      const token = localStorage.getItem("token");
       await axios.post(
         `${API_URL}/api/v1/roadmaps/${stepId}/toggle`, 
-        { userId: user.id },
-        { headers: { Authorization: `Bearer ${token}` } } 
+        { userId: user.id }
       );
     } catch (err) {
       console.error(err);
@@ -109,8 +89,6 @@ export default function RoadmapPage() {
   const handleAddStep = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const token = localStorage.getItem("token");
-
         await axios.post(
             `${API_URL}/api/v1/roadmaps`, 
             {
@@ -118,8 +96,7 @@ export default function RoadmapPage() {
                 title: newStep.title,
                 description: newStep.description,
                 stepOrder: steps.length + 1
-            },
-            { headers: { Authorization: `Bearer ${token}` } } 
+            }
         );
 
         setNewStep({ title: "", description: "" });

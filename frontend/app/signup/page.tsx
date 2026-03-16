@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/api";
+import { useAuth } from "@/app/Auth"; 
 
 const Input = ({ className = "", ...props }: any) => (
   <input
@@ -10,12 +11,9 @@ const Input = ({ className = "", ...props }: any) => (
   />
 );
 
-// Simplified Button to ensure it works
-const Button = ({ children, disabled, className = "", ...props }: any) => (
+const Button = ({ children, className = "", ...props }: any) => (
   <button
-    type="submit" 
-    disabled={disabled}
-    className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    className={`w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 ${className}`}
     {...props}
   >
     {children}
@@ -30,6 +28,8 @@ export default function SignUp() {
   const [feedback, setFeedback] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState(false); 
 
+  const { login } = useAuth();
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback({ message: "", type: "" });
@@ -43,39 +43,26 @@ export default function SignUp() {
 
     try {
       // REGISTER
-      await axios.post(
+      const res = await axios.post(
         `${API_URL}/api/v1/auth/register`,
-        { username, email, password }
+        { username, email, password },
+        { withCredentials: true } 
       );
-
-      // AUTO-LOGIN
-      const loginRes = await axios.post(
-        `${API_URL}/api/v1/auth/login`,
-        { email, password }
-      );
-
-      // SAVE TOKEN & USER DATA
-      const token = loginRes.data.token || loginRes.data.jwt;
-      if (token) {
-        localStorage.setItem("token", token);
         
-        const userToSave = {
-            username: username,
-            email: loginRes.data.email || email,
-            id: loginRes.data.id,
-            role: loginRes.data.role 
-        };
-        localStorage.setItem("user", JSON.stringify(userToSave));
+      const userToSave = {
+        email: res.data.email || email,
+        username: res.data.username || "",
+        id: res.data.id,
+        role: res.data.role 
+      };
+      
+      login(userToSave);
 
-        // Trigger UI update for the Navbar
-        window.dispatchEvent(new Event("storage"));
-
-        setFeedback({ message: "Account created! Logging you in...", type: "success" });
-        
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 1000);
-      }
+      setFeedback({ message: "Account created! Logging you in...", type: "success" });
+      
+      setTimeout(() => {
+          window.location.href = "/";
+      }, 1000);
 
     } catch (err: any) {
       console.error(err);
@@ -85,7 +72,7 @@ export default function SignUp() {
       }
       setFeedback({ message: errorMessage, type: "error" });
     } finally {
-      setLoading(false); // Stop loading regardless of success/failure
+      setLoading(false); 
     }
   };
 

@@ -1,7 +1,6 @@
 package com.learn2code.backend.resource.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.learn2code.backend.resource.model.Resource;
 import com.learn2code.backend.resource.service.ResourceService;
+import com.learn2code.backend.resource.dto.RateResourceRequest;
 
 @RestController
 @RequestMapping("/api/v1/resources")
@@ -34,36 +34,14 @@ public class ResourceController {
     }
 
     @PutMapping("/{id}/rate")
-    public ResponseEntity<Resource> rateResource(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-        Object scoreObj = payload.get("score");
-        Object userIdObj = payload.get("userId");
+    public ResponseEntity<Resource> rateResource(
+            @PathVariable Long id,
+            @RequestBody RateResourceRequest payload) {
 
-        if (scoreObj == null || userIdObj == null) {
+        if (payload.score() == null || payload.userId() == null) {
             return ResponseEntity.badRequest().build();
         }
-
-        try {
-            int score = switch (scoreObj) {
-                case Integer i ->
-                    i;
-                case String s ->
-                    Integer.parseInt(s);
-                default ->
-                    Integer.parseInt(scoreObj.toString());
-            };
-
-            Long userId = switch (userIdObj) {
-                case Number n -> n.longValue(); 
-                case String s -> Long.parseLong(s);
-                default -> Long.parseLong(userIdObj.toString());
-            };
-            
-
-            Resource updated = resourceService.rateResource(id, score, userId);
-            return ResponseEntity.ok(updated);
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Resource updated = resourceService.rateResource(id, payload.score(), payload.userId());
+        return ResponseEntity.ok(updated);
     }
 }

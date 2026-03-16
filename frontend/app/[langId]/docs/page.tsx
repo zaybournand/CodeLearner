@@ -8,7 +8,7 @@ import {
   ThumbsUp, UserCircle, ArrowLeft
 } from "lucide-react";
 import { API_URL } from "@/app/utils/api";
-
+import { useAuth } from "@/app/Auth";
 // --- Types ---
 interface Resource {
   id: number;
@@ -19,7 +19,7 @@ interface Resource {
   totalVotes: number;
   addedBy: string;
 }
-
+axios.defaults.withCredentials = true;
 interface User {
   email: string;
   username?: string;
@@ -35,7 +35,7 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
   const router = useRouter();
 
   // Auth State
-  const [user, setUser] = useState<User | null>(null);
+  const {user} = useAuth();
   
   // Data State
   const [resources, setResources] = useState<Resource[]>([]);
@@ -45,19 +45,6 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
   // Form State
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: "", description: "", url: "" });
-
-  // --- EFFECT: Check Auth on Load ---
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        setUser(null);
-      }
-    }
-  }, []);
   
   const handleGoBack = () => {
     router.push('/');
@@ -86,13 +73,10 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     if (!user) return;
 
     try {
-      const token = localStorage.getItem("token");
       await axios.post(`${API_URL}/api/v1/resources`, {
         ...formData,
         topic: langId,
         addedBy: user.username || user.email
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       // Reset form and refresh list
@@ -114,11 +98,9 @@ const langId = (params?.langId as string)?.toLowerCase() || "react";
     }
     
     try {
-      const token = localStorage.getItem("token");
       await axios.put(`${API_URL}/api/v1/resources/${id}/rate`, 
         { score : score,
-          userId : user.id},
-        { headers: { Authorization: `Bearer ${token}` }}
+          userId : user.id}
       );
       // Refresh to show new average score
       setRefreshKey(prev => prev + 1);

@@ -6,7 +6,7 @@ import axios from "axios";
 import { 
   Trophy, ArrowRight, Loader2, BookOpen, Layout, CheckCircle2 
 } from "lucide-react";
-
+import { useAuth } from "@/app/Auth";
 // --- Types ---
 interface DashboardStat {
   topic: string;
@@ -20,23 +20,12 @@ interface User {
   email: string;
   username?: string;
 }
+axios.defaults.withCredentials = true;
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const {user} = useAuth();
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Check Auth
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    if (!token || !storedUser) {
-        // Redirect if not logged in
-        window.location.href = "/login";
-        return;
-    }
-    setUser(JSON.parse(storedUser));
-  }, []);
 
   // Fetch Stats from NEW Dashboard Endpoint
   useEffect(() => {
@@ -45,9 +34,7 @@ export default function DashboardPage() {
       
       try {
         // Calling your new dedicated Dashboard Controller
-        const res = await axios.get(`${API_URL}/api/v1/dashboard/stats?userId=${user.id}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
+        const res = await axios.get(`${API_URL}/api/v1/dashboard/stats?userId=${user.id}`);
         setStats(res.data);
       } catch (err) {
         console.error("Failed to load dashboard", err);

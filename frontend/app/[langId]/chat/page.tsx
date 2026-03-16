@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Send, Users, Loader2, UserCircle, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { API_URL } from "@/app/utils/api";
-
+import { useAuth } from "@/app/Auth";
 // --- INTERFACE ---
 interface ChatMessage {
   id?: number;
@@ -14,28 +14,16 @@ interface ChatMessage {
   topic: string;
   timestamp?: string;
 }
+axios.defaults.withCredentials = true;
 
 export default function ChatPage() {
   const params = useParams();
   const langId = (params.langId as string).toLowerCase();
   const router = useRouter();
+
   
   // --- Local Auth Logic ---
-  const [user, setUser] = useState<{ email: string; username?: string } | null>(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        setUser(null);
-      }
-    }
-  }, []);
-
+  const {user} = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -49,16 +37,7 @@ export default function ChatPage() {
 
 const fetchMessages = async () => {
   try {
-    const token = localStorage.getItem("token"); 
-    
-    // If no token, we can't fetch private chat history
-    if (!token) return; 
-
-    const res = await axios.get(`${API_URL}/api/v1/chat/${langId}`, {
-      headers: {
-        Authorization: `Bearer ${token}` 
-      }
-    });
+    const res = await axios.get(`${API_URL}/api/v1/chat/${langId}`);
     setMessages(res.data);
   } catch (err) {
     console.error("Error fetching chat:", err);
@@ -85,7 +64,7 @@ const fetchMessages = async () => {
     const senderName = user.username || user.email;
 
     const newMessage: ChatMessage = {
-      topic: langId, // Uses dynamic topic
+      topic: langId, 
       message: inputText, 
       sender: senderName,
     };
@@ -99,15 +78,9 @@ const fetchMessages = async () => {
       setInputText(""); 
 
       // Send to backend with Auth Header
-      const token = localStorage.getItem("token");
       await axios.post(
         `${API_URL}/api/v1/chat`, 
         newMessage,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
       );
       fetchMessages();
     } catch (err) {

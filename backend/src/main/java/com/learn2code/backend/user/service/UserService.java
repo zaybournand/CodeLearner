@@ -1,7 +1,5 @@
 package com.learn2code.backend.user.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,15 +45,6 @@ public class UserService {
         return new UserResponseDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
     }
 
-    public boolean validateUserCredentials(String username, String password) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return passwordEncoder.matches(password, user.getPassword());
-        }
-        return false;
-    }
-
     public Iterable<User> findAllUser() {
         return userRepository.findAll();
     }
@@ -63,6 +52,11 @@ public class UserService {
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
     public User updateUser(Long id, User userDetails) {
@@ -83,17 +77,5 @@ public class UserService {
             throw new RuntimeException("User not found");
         }
         userRepository.deleteById(id);
-    }
-
-    public User validateLogin(String email, String password) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("Invalid email or password");
-        }
-        User user = userOptional.get();
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
-        }
-        return user;
     }
 }

@@ -1,18 +1,20 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { API_URL } from "@/app/utils/api";
+import axios from "axios";
 
 type User = { 
     email: string; 
     username?: string; 
-    id?: number 
-    role?: string
+    id?: number;
+    role?: string;
 } | null;
 
 interface AuthContextType {
   user: User;
   setUser: (user: User) => void;
-  login: (token: string, userData: User) => void;
+  login: (userData: User) => void; 
   logout: () => void;
 }
 
@@ -27,26 +29,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-
-    if (token && storedUser) {
-      try {
+    if (storedUser) {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse user data");
-      }
     }
   }, []);
 
-  const login = (token: string, userData: User) => {
-    localStorage.setItem("token", token);
+  const login = (userData: User) => {
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  const logout = async () => {
+    try {
+      await axios.post(
+        `${API_URL}/api/v1/auth/logout`, 
+        {}, 
+        { withCredentials: true } 
+      );
+      
+      console.log("Successfully logged out of the backend!");
+    } catch (error) {
+      console.error("Logout failed on backend", error);
+    }
+    
     localStorage.removeItem("user");
     setUser(null);
     window.location.href = "/login";

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/api";
+import { useAuth } from "@/app/Auth"; 
 
 const Input = ({ className = "", ...props }: any) => (
   <input
@@ -25,6 +26,8 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState({ message: "", type: "" });
 
+  const { login } = useAuth();
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback({ message: "", type: "" });
@@ -36,32 +39,21 @@ export default function SignIn() {
         { email, password },
         { withCredentials: true } 
       );
-
-      const token = res.data.token || res.data.jwt || res.data.accessToken;
+        
+      const userToSave = {
+          email: res.data.email || email,
+          username: res.data.username || "",
+          id: res.data.id,
+          role: res.data.role 
+      };
       
-      if (token) {
-        localStorage.setItem("token", token);
-        
-        const userToSave = {
-            email: res.data.email || email,
-            username: res.data.username || "",
-            id: res.data.id,
-            role: res.data.role 
-        };
-        
-        localStorage.setItem("user", JSON.stringify(userToSave));
+      login(userToSave);
 
-        // Trigger Navbar update
-        window.dispatchEvent(new Event("storage"));
-
-        setFeedback({ message: "Success! Redirecting...", type: "success" });
-        
-        setTimeout(() => {
-            window.location.href = "/"; 
-        }, 500);
-      } else {
-        throw new Error("No token received");
-      }
+      setFeedback({ message: "Success! Redirecting...", type: "success" });
+      
+      setTimeout(() => {
+          window.location.href = "/"; 
+      }, 500);
 
     } catch (err: any) {
       console.error(err);

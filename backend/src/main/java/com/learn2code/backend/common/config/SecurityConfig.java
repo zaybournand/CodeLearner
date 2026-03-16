@@ -5,30 +5,24 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.http.HttpMethod;
-import com.learn2code.backend.auth.jwt.JWTFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    @Autowired
-    private JWTFilter jwtFilter;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -39,27 +33,25 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                // 1. PUBLIC ENDPOINTS (No Login Required)
                 .requestMatchers("/api/v1/auth/**").permitAll() // Sign Up / Login
                 .requestMatchers(HttpMethod.GET, "/api/v1/resources/**").permitAll() // Read Docs
                 .requestMatchers(HttpMethod.GET, "/api/v1/roadmaps/**").permitAll() // Read Roadmaps
-                .requestMatchers("/ws/**").permitAll() // WebSocket Handshake (Handles auth internally usually)
+                .requestMatchers("/ws/**").permitAll() // WebSocket Handshake
 
-                // 2. PRIVATE ENDPOINTS (Login Required)
-                .requestMatchers("/api/v1/dashboard/**").authenticated() // My Stats
-                .requestMatchers("/api/v1/chat/**").authenticated() // Chatting
-                .requestMatchers("/api/v1/users/**").authenticated() // User Data
-
-                // 3. MUTATIONS (POST/PUT/DELETE on Resources/Roadmaps)
-                // Even though GET is public, changing them requires login
+                // PRIVATE ENDPOINTS
+                .requestMatchers("/api/v1/dashboard/**").authenticated()
+                .requestMatchers("/api/v1/chat/**").authenticated()
+                .requestMatchers("/api/v1/users/**").authenticated()
                 .requestMatchers("/api/v1/resources/**").authenticated()
                 .requestMatchers("/api/v1/roadmaps/**").authenticated()
-                // 4. Default Rule: Everything else is locked
                 .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .logout(logout -> logout
+                .logoutUrl("/api/v1/auth/logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200))
+                );
 
         return http.build();
     }
@@ -85,7 +77,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://learn2code.vercel.app"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
