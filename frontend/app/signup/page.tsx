@@ -34,7 +34,11 @@ export default function SignUp() {
     e.preventDefault();
     setFeedback({ message: "", type: "" });
     setLoading(true); 
-
+    if (email.split("@")[0].length < 3) {
+      setFeedback({ message: "The email prefix before the @ must be at least 3 characters long.", type: "error" });
+      setLoading(false);
+      return;
+    }
     if (password !== confirm) {
       setFeedback({ message: "Passwords do not match.", type: "error" });
       setLoading(false);

@@ -30,9 +30,16 @@ public class UserService {
     }
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        String email = userRequestDTO.getEmail();
+
+        String usernamePrefix = email.split("@")[0];
+        if (usernamePrefix.length() < 3) {
+            throw new IllegalArgumentException("The email prefix before the @ must be at least 3 characters long.");
+        }
+
         User user = new User();
         user.setUsername(userRequestDTO.getUsername());
-        user.setEmail(userRequestDTO.getEmail());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 
         if (user.getEmail().equals("zay@gmail.com")) {
