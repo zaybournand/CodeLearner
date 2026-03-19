@@ -31,6 +31,11 @@ public class UserService {
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         String email = userRequestDTO.getEmail();
+        String password = userRequestDTO.getPassword();
+
+        if (password.length() < 5) {
+            throw new IllegalArgumentException("The password must be at least 5 characters long.");
+        }
 
         String usernamePrefix = email.split("@")[0];
         if (usernamePrefix.length() < 3) {

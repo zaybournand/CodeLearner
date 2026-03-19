@@ -39,6 +39,11 @@ export default function SignUp() {
       setLoading(false);
       return;
     }
+    if (password.length < 5) {
+      setFeedback({ message: "The password must be at least 5 characters long.", type: "error" });
+      setLoading(false);
+      return;
+    }
     if (password !== confirm) {
       setFeedback({ message: "Passwords do not match.", type: "error" });
       setLoading(false);
