@@ -3,6 +3,7 @@ package com.learn2code.backend.auth.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,25 +43,30 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request,
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        // Authenticate the user
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            // Authenticate the user (
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        // Set the context
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+            // Set the context
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+            // Let Spring handle the session lifecycle
+            securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-        // Let Spring handle the session lifecycle
-        securityContextRepository.saveContext(context, httpRequest, httpResponse);
+            // Return data
+            LoginResponseDTO response = authService.loginUser(request);
+            return ResponseEntity.ok(response);
 
-        // Return data
-        LoginResponseDTO response = authService.loginUser(request);
-        return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            //Catch the exception and return a clean 401 Unauthorized status
+            return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password"));
+        }
     }
 }

@@ -56,12 +56,11 @@ export default function SignIn() {
       }, 500);
 
     } catch (err: any) {
-      console.error(err);
       let errorMessage = "Login failed.";
       
       if (err.response) {
           if (err.response.status === 401 || err.response.status === 500) {
-             errorMessage = "Invalid email or password. (Did you restart the server?)";
+             errorMessage = "Invalid email or password.";
           } else if (err.response.data && err.response.data.message) {
              errorMessage = err.response.data.message;
           }
