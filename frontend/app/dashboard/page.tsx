@@ -27,13 +27,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Stats from NEW Dashboard Endpoint
+  // Fetch Stats from new Dashboard Endpoint
   useEffect(() => {
     const fetchStats = async () => {
       if (!user) return;
       
       try {
-        // Calling your new dedicated Dashboard Controller
         const res = await axios.get(`${API_URL}/api/v1/dashboard/stats?userId=${user.id}`);
         setStats(res.data);
       } catch (err) {
@@ -46,7 +45,6 @@ export default function DashboardPage() {
     if (user) fetchStats();
   }, [user]);
 
-  // Handle Navigation (Simulated for preview)
   const navigateTo = (path: string) => {
     window.location.href = path;
   };
@@ -149,7 +147,6 @@ export default function DashboardPage() {
   );
 }
 
-// Simple Plus Icon Helper
 const PlusIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 12h14" />

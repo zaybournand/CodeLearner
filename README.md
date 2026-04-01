@@ -4,7 +4,7 @@ Learn2Code is a full-stack web application designed to help users learn and prac
 
 ## 🚀 Features
 
-- **User Authentication**: Secure login and registration system using Spring Security and JWT.
+- **User Authentication**: Secure login and registration system using Spring Security.
 - **Dashboard**: Personalized dashboard for users to track their progress.
 - **Chat Functionality**: Engage in real-time discussions with other users on specific topics.
 - **Resource Management**: Users can view and rate programming resources (e.g., tutorials, videos, articles) provided by the admin. Documents are ranked from best to worst based on user ratings.
@@ -15,7 +15,7 @@ Learn2Code is a full-stack web application designed to help users learn and prac
 - **Frontend**: Next.js, React, TypeScript
 - **Backend**: Spring Boot, Java
 - **Database**: PostgreSQL
-- **Authentication**: JSON Web Tokens (JWT)
+- **Authentication**: Spring Security
 - **Real-time Communication**: WebSockets (in progress)
 - **Build Tool**: Maven
 - **Package Manager**: npm
