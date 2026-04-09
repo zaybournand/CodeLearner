@@ -4,9 +4,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation"; 
 import { Send, Users, Loader2, UserCircle, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
+
 import { API_URL } from "@/app/utils/api";
 import { useAuth } from "@/app/Auth";
-// --- INTERFACE ---
+
 interface ChatMessage {
   id?: number;
   message: string; 
@@ -21,36 +24,59 @@ export default function ChatPage() {
   const langId = (params.langId as string).toLowerCase();
   const router = useRouter();
 
-  
-  // --- Local Auth Logic ---
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(true);
   
+  const stompClientRef = useRef<Client | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleGoBack = () => {
     router.push("/");
   }
 
-
-const fetchMessages = async () => {
-  try {
-    const res = await axios.get(`${API_URL}/api/v1/chat/${langId}`);
-    setMessages(res.data);
-  } catch (err) {
-    console.error("Error fetching chat:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchMessages = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/v1/chat/${langId}`);
+      setMessages(res.data);
+    } catch (err) {
+      console.error("Error fetching chat:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true); 
+    setLoading(true);  
     fetchMessages(); 
-    const interval = setInterval(fetchMessages, 2000); 
-    return () => clearInterval(interval); 
+    const socket = new SockJS(`${API_URL}/ws`);
+    const client = new Client({
+      webSocketFactory: () => socket,
+      connectHeaders: {       
+      },
+      onConnect: () => {
+        console.log("Connected to Live Chat!");
+        
+        client.subscribe(`/topic/messages/${langId}`, (msg) => {
+          const incomingMessage = JSON.parse(msg.body);
+          setMessages((prev) => [...prev, incomingMessage]);
+        });
+      },
+      onStompError: (frame) => {
+        console.error("Broker reported error: " + frame.headers["message"]);
+        console.error("Additional details: " + frame.body);
+      },
+    });
+
+    client.activate();
+    stompClientRef.current = client;
+
+    return () => {
+      if (client) {
+        client.deactivate();
+      }
+    };
   }, [langId]); 
 
   useEffect(() => {
@@ -63,28 +89,20 @@ const fetchMessages = async () => {
 
     const senderName = user.username || user.email;
 
-    const newMessage: ChatMessage = {
-      topic: langId, 
+    const newMessage = {
       message: inputText, 
       sender: senderName,
     };
 
-    try {
-      setMessages((prev) => [
-        ...prev, 
-        { ...newMessage, id: Date.now() } 
-      ]);
-      
-      setInputText(""); 
-
-      // Send to backend with Auth Header
-      await axios.post(
-        `${API_URL}/api/v1/chat`, 
-        newMessage,
-      );
-      fetchMessages();
-    } catch (err) {
-      console.error("Failed to send message", err);
+    if (stompClientRef.current && stompClientRef.current.connected) {
+        stompClientRef.current.publish({
+            destination: `/app/sendMessage/${langId}`,
+            body: JSON.stringify(newMessage)
+        });
+        
+        setInputText(""); 
+    } else {
+        console.error("Cannot send: WebSocket is not connected.");
     }
   };
  
@@ -94,7 +112,6 @@ const fetchMessages = async () => {
       {/* Header */}
       <div className="bg-white border border-slate-200 rounded-t-2xl p-4 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-4">
-            {/* BACK BUTTON */}
             <button 
               onClick={handleGoBack}
               className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition-colors"
@@ -130,12 +147,12 @@ const fetchMessages = async () => {
             </div>
         )}
 
-        {messages.map((msg) => {
+        {messages.map((msg, index) => {
           const senderName = user?.username || user?.email;
           const isMe = msg.sender === senderName;
           
           return (
-            <div key={msg.id || Math.random()} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+            <div key={msg.id || index} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
                     <div className="flex items-center gap-2 mb-1">
                         {!isMe && <UserCircle size={14} className="text-slate-400" />}

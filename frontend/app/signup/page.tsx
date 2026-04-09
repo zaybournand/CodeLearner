@@ -51,13 +51,16 @@ export default function SignUp() {
     }
 
     try {
-      // REGISTER
       const res = await axios.post(
         `${API_URL}/api/v1/auth/register`,
         { username, email, password },
         { withCredentials: true } 
       );
-        
+      const loginRes = await axios.post(
+        `${API_URL}/api/v1/auth/login`,
+        { email, password },
+        { withCredentials: true } 
+      );
       const userToSave = {
         email: res.data.email || email,
         username: res.data.username || "",
