@@ -16,7 +16,7 @@ Learn2Code is a full-stack web application designed to help users learn and prac
 - **Backend**: Spring Boot, Java
 - **Database**: PostgreSQL
 - **Authentication**: Spring Security
-- **Real-time Communication**: WebSockets (in progress)
+- **Real-time Communication**: WebSockets
 - **Build Tool**: Maven
 - **Package Manager**: npm
 
