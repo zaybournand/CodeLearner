@@ -18,10 +18,8 @@ public class AuthService {
 
     public LoginResponseDTO loginUser(LoginRequestDTO loginRequestDTO) {
 
-        // 1. Fetch the database User object using the method we just made
         User user = userService.findByEmail(loginRequestDTO.getEmail());
 
-        // 2. Build the DTO to send to Next.js
         return new LoginResponseDTO(
                 user.getId(),
                 user.getEmail(),

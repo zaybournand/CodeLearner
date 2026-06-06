@@ -6,7 +6,6 @@ public class UserRequestDTO {
     private String email;
     private String password;
 
-    // getter 
     public String getUsername() {
         return username;
     }
@@ -19,7 +18,6 @@ public class UserRequestDTO {
         return password;
     }
 
-    //setter
     public void setUsername(String username) {
         this.username = username;
     }

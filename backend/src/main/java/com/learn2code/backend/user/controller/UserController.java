@@ -5,14 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.learn2code.backend.user.dto.UserRequestDTO;
-import com.learn2code.backend.user.dto.UserResponseDTO;
 import com.learn2code.backend.user.model.User;
 import com.learn2code.backend.user.service.UserService;
 
@@ -23,17 +20,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //retrieve all users
     @GetMapping
     public Iterable<User> getALLUser() {
         return userService.findAllUser();
-    }
-
-    //create a new user
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
-        UserResponseDTO response = userService.createUser(userRequestDTO);
-        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")

@@ -48,24 +48,18 @@ public class AuthController {
             HttpServletResponse httpResponse) {
 
         try {
-            // Authenticate the user (
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
-            // Set the context
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-            // Let Spring handle the session lifecycle
             securityContextRepository.saveContext(context, httpRequest, httpResponse);
-
-            // Return data
             LoginResponseDTO response = authService.loginUser(request);
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
-            //Catch the exception and return a clean 401 Unauthorized status
             return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password"));
         }
     }
