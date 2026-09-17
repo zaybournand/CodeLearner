@@ -20,6 +20,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic");
+
+        // Use RabbitMQ as external STOMP broker relay
+        registry.enableStompBrokerRelay("/topic", "/queue")
+                .setRelayHost("localhost")
+                .setRelayPort(61613)
+                .setRelayHost("127.0.0.1")
+                .setClientLogin("guest")
+                .setClientPasscode("guest")
+                .setSystemLogin("guest")
+                .setSystemPasscode("guest")
+                .setSystemHeartbeatReceiveInterval(10000)
+                .setSystemHeartbeatSendInterval(10000);
     }
 }

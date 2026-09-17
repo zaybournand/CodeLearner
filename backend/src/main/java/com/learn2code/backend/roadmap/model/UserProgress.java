@@ -36,7 +36,6 @@ public class UserProgress {
         this.isCompleted = isCompleted;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

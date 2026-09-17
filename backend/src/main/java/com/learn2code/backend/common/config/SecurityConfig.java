@@ -36,7 +36,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll() // Sign Up / Login
                 .requestMatchers(HttpMethod.GET, "/api/v1/resources/**").permitAll() // Read Docs
                 .requestMatchers(HttpMethod.GET, "/api/v1/roadmaps/**").permitAll() // Read Roadmaps
-                .requestMatchers("/ws/**").permitAll() // WebSocket Handshake
+                .requestMatchers("/ws").permitAll()
+                .requestMatchers("/ws/**").permitAll()
 
                 // PRIVATE ENDPOINTS
                 .requestMatchers("/api/v1/dashboard/**").authenticated()

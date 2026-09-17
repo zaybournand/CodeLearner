@@ -50,34 +50,42 @@ export default function ChatPage() {
   useEffect(() => {
     setLoading(true);  
     fetchMessages(); 
+  
     const socket = new SockJS(`${API_URL}/ws`);
+  
     const client = new Client({
       webSocketFactory: () => socket,
-      connectHeaders: {       
+    
+      debug: (str) => {
+        console.log("STOMP DEBUG:", str);
       },
+    
+      connectHeaders: {},
+    
       onConnect: () => {
         console.log("Connected to Live Chat!");
         
-        client.subscribe(`/topic/messages/${langId}`, (msg) => {
+        client.subscribe(`/topic/messages.${langId}`, (msg) => {
           const incomingMessage = JSON.parse(msg.body);
           setMessages((prev) => [...prev, incomingMessage]);
         });
       },
+    
       onStompError: (frame) => {
         console.error("Broker reported error: " + frame.headers["message"]);
         console.error("Additional details: " + frame.body);
       },
     });
-
+  
     client.activate();
     stompClientRef.current = client;
-
+  
     return () => {
       if (client) {
         client.deactivate();
       }
     };
-  }, [langId]); 
+  }, [langId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

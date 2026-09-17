@@ -37,7 +37,7 @@ public class ChatController {
     }
 
     @MessageMapping("/sendMessage/{topic}")
-    @SendTo("/topic/messages/{topic}")
+    @SendTo("/topic/messages.{topic}")
     public Chat sendMessage(
             @DestinationVariable String topic,
             @Payload Chat message

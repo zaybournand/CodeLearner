@@ -14,7 +14,6 @@ public class RoadmapStepDTO {
         this.completed = completed;
     }
 
-    // Getters are required for JSON serialization
     public Long getId() {
         return id;
     }

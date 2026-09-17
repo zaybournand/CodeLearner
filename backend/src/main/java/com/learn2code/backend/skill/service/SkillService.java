@@ -14,17 +14,14 @@ public class SkillService {
     @Autowired
     private SkillRepository skillRepository;
 
-    // Get all Languages/Skills
     public List<Skill> getAllSkills() {
         return skillRepository.findAll();
     }
 
-    // Create a new Language/Skill 
     public Skill createSkill(Skill skill) {
         return skillRepository.save(skill);
     }
 
-    // Get a specific skill by ID 
     public Skill getSkillById(Long id) {
         return skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));

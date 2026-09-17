@@ -11,11 +11,9 @@ public class DashboardDTO {
         this.topic = topic;
         this.totalSteps = totalSteps;
         this.completedSteps = completedSteps;
-        // Avoid division by zero: if totalSteps is 0, percentage is 0
         this.percentage = (totalSteps > 0) ? (int) ((double) completedSteps / totalSteps * 100) : 0;
     }
 
-    // Getters (Required for JSON response)
     public String getTopic() {
         return topic;
     }

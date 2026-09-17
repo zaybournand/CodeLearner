@@ -54,7 +54,6 @@ public class Resource {
         this.averageRating = (double) this.sumRating / this.totalVotes;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -106,8 +105,20 @@ public class Resource {
     public int getTotalVotes() {
         return totalVotes;
     }
-    public long getSumRating() { return sumRating; }
-    public void setSumRating(long sumRating) { this.sumRating = sumRating; }
-    public void setTotalVotes(int totalVotes) { this.totalVotes = totalVotes; }
-    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+
+    public long getSumRating() {
+        return sumRating;
+    }
+
+    public void setSumRating(long sumRating) {
+        this.sumRating = sumRating;
+    }
+
+    public void setTotalVotes(int totalVotes) {
+        this.totalVotes = totalVotes;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
 }
